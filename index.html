@@ -1,0 +1,3224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kinlgali Investing — Private Advisory</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' fill='%2322282F'/%3E%3Ccircle cx='32' cy='32' r='24' fill='none' stroke='%23C9A155' stroke-width='2'/%3E%3Ctext x='32' y='41' font-family='Georgia,serif' font-size='28' fill='%23C9A155' text-anchor='middle'%3EK%3C/text%3E%3C/svg%3E">
+<meta name="description" content="Kinlgali Investing — a formal, education-only planning tool that drafts account structures and asset allocation models around your goal and timeline.">
+<meta property="og:title" content="Kinlgali Investing — Private Advisory">
+<meta property="og:description" content="State your goal and timeline. Get a drafted account structure and allocation model in the style of a formal planning brief.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#8A6A2E">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root{
+  --paper:#FBF8F1;
+  --panel:#F1EAD8;
+  --ink:#22282F;
+  --ink-soft:#5E6670;
+  --brass:#8A6A2E;
+  --brass-fill:#C9A155;
+  --brass-fill-hover:#B78D42;
+  --verdigris:#3F6C63;
+  --crimson:#8C2F39;
+  --stone:#8C8368;
+  --hair:#E1D8C2;
+}
+
+*{box-sizing:border-box; margin:0; padding:0;}
+
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Inter',sans-serif;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+body::before{
+  content:'';
+  position:fixed; inset:-20% -10%; z-index:-2;
+  background-image:repeating-linear-gradient(
+    115deg,
+    rgba(138,106,46,.035) 0px, rgba(138,106,46,.035) 1px,
+    transparent 1px, transparent 64px
+  );
+  animation:ledgerDrift 90s linear infinite;
+  pointer-events:none;
+}
+.site-motes{position:fixed; inset:0; z-index:-1; overflow:hidden; pointer-events:none;}
+
+.serif{font-family:'Fraunces',serif;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+
+::selection{background:var(--brass-fill); color:var(--ink);}
+
+a{color:inherit;}
+
+/* ---------- MODAL ---------- */
+.modal-veil{
+  position:fixed; inset:0; z-index:200;
+  background:radial-gradient(ellipse at top, #FFFFFF 0%, #EFE6D2 100%);
+  display:flex; align-items:center; justify-content:center;
+  padding:24px; overflow:hidden;
+}
+.modal-veil::before{
+  content:'';
+  position:absolute; inset:-20% -10%;
+  background-image:repeating-linear-gradient(
+    115deg,
+    rgba(138,106,46,.06) 0px, rgba(138,106,46,.06) 1px,
+    transparent 1px, transparent 64px
+  );
+  animation:ledgerDrift 50s linear infinite;
+  pointer-events:none; z-index:0;
+}
+.veil-motes{position:absolute; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
+.modal{
+  position:relative; z-index:1;
+  max-width:600px; width:100%;
+  background:var(--panel);
+  border:1px solid var(--hair);
+  border-top:3px solid var(--brass);
+  padding:44px 44px 32px;
+  box-shadow:0 30px 70px rgba(60,45,20,.18);
+  animation:modalRise .65s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes modalRise{
+  from{opacity:0; transform:translateY(18px) scale(.97);}
+  to{opacity:1; transform:translateY(0) scale(1);}
+}
+.corner{position:absolute; width:16px; height:16px; border-color:var(--brass); pointer-events:none;}
+.corner.tl{top:8px; left:8px; border-top:1.5px solid; border-left:1.5px solid;}
+.corner.tr{top:8px; right:8px; border-top:1.5px solid; border-right:1.5px solid;}
+.corner.bl{bottom:8px; left:8px; border-bottom:1.5px solid; border-left:1.5px solid;}
+.corner.br{bottom:8px; right:8px; border-bottom:1.5px solid; border-right:1.5px solid;}
+.crest-wrap{text-align:center; margin-bottom:18px;}
+.crest-wrap svg{filter:drop-shadow(0 1px 0 rgba(255,255,255,.5));}
+.doc-ref{
+  font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--ink-soft); text-align:center; margin-bottom:22px;
+}
+.doc-divider{display:flex; align-items:center; gap:10px; margin:20px 0;}
+.doc-divider::before, .doc-divider::after{content:''; flex:1; height:1px; background:var(--hair);}
+.doc-divider .diamond{width:6px; height:6px; background:var(--brass); transform:rotate(45deg); flex-shrink:0;}
+.modal-eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px; letter-spacing:.14em; text-transform:uppercase;
+  color:var(--brass); margin-bottom:10px; text-align:center;
+}
+.modal h2{
+  font-family:'Fraunces',serif; font-weight:600; font-size:28px;
+  margin-bottom:6px; color:var(--ink); text-align:center;
+}
+.modal-body{
+  max-height:280px; overflow-y:auto;
+  border:1px solid var(--hair); background:#FFFFFF;
+  padding:20px 22px; font-size:14px; color:var(--ink-soft); line-height:1.65;
+  margin-bottom:20px;
+}
+.modal-body ul{list-style:none;}
+.modal-body li{position:relative; padding-left:20px; margin-bottom:12px;}
+.modal-body li:last-child{margin-bottom:0;}
+.modal-body li::before{content:'—'; position:absolute; left:0; color:var(--brass);}
+.modal-body strong{color:var(--ink);}
+.ack-row{
+  display:flex; gap:12px; align-items:flex-start;
+  margin-bottom:24px; font-size:13.5px; color:var(--ink-soft);
+}
+.ack-row input{
+  margin-top:3px; width:16px; height:16px; accent-color:var(--brass-fill);
+  flex-shrink:0; cursor:pointer;
+}
+.ack-row label{cursor:pointer;}
+.btn{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px;
+  letter-spacing:.08em; text-transform:uppercase;
+  padding:14px 28px; border:1px solid var(--brass);
+  background:transparent; color:var(--brass);
+  cursor:pointer; transition:.2s ease; text-align:center;
+}
+.btn:hover:not(:disabled){background:var(--brass-fill); border-color:var(--brass-fill); color:var(--ink);}
+.btn:disabled{opacity:.4; cursor:not-allowed;}
+.btn-solid{background:var(--brass-fill); color:var(--ink); border-color:var(--brass-fill);}
+.btn-solid:hover{background:var(--brass-fill-hover); border-color:var(--brass-fill-hover);}
+.btn-block{width:100%;}
+
+/* ---------- NAV ---------- */
+.app{display:none;}
+.app.visible{display:block;}
+.sticky-head{position:sticky; top:0; z-index:50; background:rgba(251,248,241,.92); backdrop-filter:blur(8px);}
+nav{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:22px 48px; border-bottom:1px solid var(--hair);
+}
+.wordmark{
+  font-family:'Fraunces',serif; font-weight:600; font-size:19px;
+  letter-spacing:.02em; color:var(--ink);
+}
+.wordmark span{color:var(--brass); font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:.1em; margin-left:2px;}
+.nav-tag{
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px;
+  letter-spacing:.14em; text-transform:uppercase; color:var(--ink-soft);
+}
+
+/* ---------- TAB BAR ---------- */
+.tab-bar{
+  display:flex; gap:2px; padding:0 42px; border-bottom:1px solid var(--hair);
+  overflow-x:auto; scrollbar-width:none;
+}
+.tab-bar::-webkit-scrollbar{display:none;}
+.tab-item{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--ink-soft); padding:15px 16px; cursor:pointer; white-space:nowrap;
+  border-bottom:2px solid transparent; margin-bottom:-1px; transition:.15s; background:none; border-left:none; border-right:none; border-top:none;
+}
+.tab-item:hover{color:var(--ink);}
+.tab-item.active{color:var(--brass); border-bottom-color:var(--brass); font-weight:600;}
+
+/* ---------- HERO ---------- */
+.hero{
+  padding:110px 48px 90px; max-width:920px; margin:0 auto; text-align:left;
+  border-bottom:1px solid var(--hair);
+  position:relative; overflow:hidden;
+}
+.hero::before{
+  content:'';
+  position:absolute; inset:-20% -10%;
+  background-image:repeating-linear-gradient(
+    115deg,
+    rgba(138,106,46,.05) 0px, rgba(138,106,46,.05) 1px,
+    transparent 1px, transparent 64px
+  );
+  animation:ledgerDrift 50s linear infinite;
+  pointer-events:none; z-index:0;
+}
+@keyframes ledgerDrift{
+  0%{transform:translate(0,0);}
+  100%{transform:translate(-64px,64px);}
+}
+.hero-motes{position:absolute; inset:0; pointer-events:none; z-index:0; overflow:hidden;}
+.mote{
+  position:absolute; border-radius:50%; background:var(--brass-fill); opacity:.35;
+  animation:moteFloat ease-in-out infinite;
+}
+@keyframes moteFloat{
+  0%{transform:translateY(0) translateX(0); opacity:.15;}
+  50%{transform:translateY(-22px) translateX(8px); opacity:.45;}
+  100%{transform:translateY(0) translateX(0); opacity:.15;}
+}
+.hero-eyebrow, .hero h1, .hero p.lede, .hero-actions{position:relative; z-index:1;}
+.hero-eyebrow{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px;
+  letter-spacing:.16em; text-transform:uppercase; color:var(--verdigris);
+  margin-bottom:22px; display:flex; align-items:center; gap:14px;
+}
+.hero-eyebrow::before{content:''; width:34px; height:1px; background:var(--verdigris);}
+.hero h1{
+  font-family:'Fraunces',serif; font-weight:600; font-size:52px;
+  line-height:1.14; color:var(--ink); max-width:740px; margin-bottom:24px;
+  letter-spacing:-.01em;
+}
+.hero h1 em{color:var(--brass); font-style:normal;}
+.hero p.lede{
+  font-size:17px; color:var(--ink-soft); max-width:540px; margin-bottom:36px;
+}
+.hero-actions{display:flex; gap:16px; flex-wrap:wrap;}
+.btn-ghost{
+  font-family:'IBM Plex Mono',monospace; font-size:12.5px; letter-spacing:.08em;
+  text-transform:uppercase; color:var(--ink-soft); padding:14px 4px;
+  border-bottom:1px solid var(--hair); cursor:pointer; background:none; border-top:none; border-left:none; border-right:none;
+}
+.btn-ghost:hover{color:var(--ink); border-color:var(--ink-soft);}
+
+/* ---------- ABOUT ---------- */
+.about-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--hair); border:1px solid var(--hair); margin-top:28px;}
+.about-cell{background:var(--panel); padding:26px;}
+.about-cell .mk{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--verdigris); margin-bottom:10px;}
+.about-cell h4{font-family:'Fraunces',serif; font-size:17px; color:var(--ink); margin-bottom:8px;}
+.about-cell p{font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+@media(max-width:860px){.about-grid{grid-template-columns:1fr;}}
+
+/* ---------- FAQ ---------- */
+.faq-item{border-bottom:1px solid var(--hair);}
+.faq-item summary{
+  padding:20px 4px; cursor:pointer; list-style:none;
+  display:flex; justify-content:space-between; align-items:center; gap:16px;
+  font-family:'Fraunces',serif; font-size:17px; color:var(--ink);
+}
+.faq-item summary::-webkit-details-marker{display:none;}
+.faq-item summary::after{content:'+'; font-family:'IBM Plex Mono',monospace; font-size:18px; color:var(--brass); flex-shrink:0; transition:.2s;}
+.faq-item[open] summary::after{content:'–';}
+.faq-item p{padding:0 4px 20px; font-size:14px; color:var(--ink-soft); line-height:1.6; max-width:760px;}
+
+/* ---------- FOOTER NAV ---------- */
+.footer-nav{display:flex; gap:24px; flex-wrap:wrap; margin-bottom:20px; font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.05em; text-transform:uppercase;}
+.footer-nav a{color:var(--brass); text-decoration:none; cursor:pointer; background:none; border:none; padding:0; font:inherit; letter-spacing:inherit; text-transform:inherit;}
+.footer-nav a:hover{text-decoration:underline;}
+
+/* ---------- SECTION SHELL ---------- */
+section{padding:80px 48px; max-width:1100px; margin:0 auto;}
+.section-head{margin-bottom:40px; display:flex; align-items:baseline; gap:18px; border-bottom:1px solid var(--hair); padding-bottom:20px;}
+.exhibit-mark{
+  font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--brass);
+  border:1px solid var(--brass); padding:4px 9px; letter-spacing:.06em;
+  flex-shrink:0;
+}
+.section-head h2{font-family:'Fraunces',serif; font-weight:600; font-size:28px; color:var(--ink);}
+.section-sub{color:var(--ink-soft); font-size:15px; max-width:620px; margin-top:-20px; margin-bottom:36px; line-height:1.6;}
+
+/* ---------- FORM (EXHIBIT A) ---------- */
+.form-grid{display:grid; grid-template-columns:1fr 1fr; gap:32px 48px;}
+.field{margin-bottom:8px;}
+.field-full{grid-column:1/-1;}
+.field label{
+  display:block; font-family:'IBM Plex Mono',monospace; font-size:11px;
+  letter-spacing:.1em; text-transform:uppercase; color:var(--brass); margin-bottom:10px;
+}
+select, input[type=number], input[type=text]{
+  width:100%; background:#FFFFFF; border:1px solid var(--hair);
+  color:var(--ink); padding:13px 14px; font-family:'Inter',sans-serif;
+  font-size:15px; outline:none; transition:.2s;
+}
+select:focus, input:focus{border-color:var(--brass);}
+.field-hint{font-size:12.5px; color:var(--ink-soft); margin-top:8px; line-height:1.5;}
+
+.years-row{display:flex; align-items:center; gap:18px;}
+input[type=range]{flex:1; accent-color:var(--brass-fill); height:4px;}
+.years-readout{
+  font-family:'IBM Plex Mono',monospace; font-size:20px; color:var(--brass);
+  min-width:76px; text-align:right;
+}
+
+.money-input{position:relative;}
+.money-input::before{
+  content:'$'; position:absolute; left:14px; top:50%; transform:translateY(-50%);
+  color:var(--ink-soft); font-family:'IBM Plex Mono',monospace;
+}
+.money-input input{padding-left:28px; font-family:'IBM Plex Mono',monospace;}
+
+.risk-row{display:flex; gap:10px; flex-wrap:wrap;}
+.risk-btn{
+  flex:1; min-width:120px; padding:14px 10px; text-align:center;
+  border:1px solid var(--hair); background:#FFFFFF; color:var(--ink-soft);
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.06em;
+  text-transform:uppercase; cursor:pointer; transition:.15s;
+}
+.risk-btn:hover{border-color:var(--brass);}
+.risk-btn.active{background:var(--brass-fill); border-color:var(--brass-fill); color:var(--ink); font-weight:600;}
+
+.submit-row{margin-top:12px; display:flex; align-items:center; gap:22px; flex-wrap:wrap;}
+.submit-row .field-hint{margin:0;}
+
+/* ---------- STAMP ---------- */
+.stamp-wrap{
+  display:none; justify-content:center; align-items:center; padding:60px 0; flex-direction:column; gap:18px;
+}
+.stamp-wrap.playing{display:flex;}
+.stamp{
+  width:120px; height:120px; border:3px solid var(--crimson); border-radius:50%;
+  display:flex; align-items:center; justify-content:center; flex-direction:column;
+  color:var(--crimson); font-family:'IBM Plex Mono',monospace; font-size:10px;
+  letter-spacing:.1em; text-transform:uppercase; text-align:center;
+  transform:scale(3) rotate(-18deg); opacity:0;
+  animation:stampfall .55s cubic-bezier(.2,1.4,.4,1) forwards;
+}
+.stamp b{font-size:15px; letter-spacing:.06em; margin:4px 0;}
+@keyframes stampfall{
+  0%{transform:scale(3) rotate(-18deg); opacity:0;}
+  60%{transform:scale(.94) rotate(-8deg); opacity:1;}
+  80%{transform:scale(1.05) rotate(-11deg);}
+  100%{transform:scale(1) rotate(-9deg); opacity:1;}
+}
+.stamp-caption{font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft); letter-spacing:.06em;}
+
+/* ---------- OUTPUT ---------- */
+.output{display:none;}
+.output.visible{display:block;}
+
+.card-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px; background:var(--hair); border:1px solid var(--hair); margin-bottom:20px;}
+.acct-card{background:var(--panel); padding:26px;}
+.acct-card .tag{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--verdigris); margin-bottom:10px;}
+.acct-card h4{font-family:'Fraunces',serif; font-size:19px; font-weight:600; color:var(--ink); margin-bottom:10px;}
+.acct-card p{font-size:14px; color:var(--ink-soft); line-height:1.55;}
+
+.alloc-bar{display:flex; height:44px; width:100%; border:1px solid var(--hair); overflow:hidden; margin-bottom:18px;}
+.alloc-seg{display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600; transition:.4s;}
+.alloc-legend{display:flex; flex-wrap:wrap; gap:22px; margin-bottom:40px;}
+.legend-item{display:flex; align-items:center; gap:9px; font-size:13.5px; color:var(--ink-soft);}
+.legend-dot{width:11px; height:11px; flex-shrink:0;}
+
+.note-box{
+  border-left:2px solid var(--brass); background:var(--panel); padding:20px 24px; margin-bottom:32px; font-size:14px; color:var(--ink-soft); line-height:1.6;
+}
+.note-box strong{color:var(--ink);}
+
+/* ---------- FUND PREFERENCE MATCH ---------- */
+.fund-pref-card{display:none; margin-top:22px;}
+.fund-pref-card.visible{display:block;}
+.fund-pref-single{border:1px solid var(--brass); background:var(--panel); padding:22px 24px; margin-bottom:14px;}
+.fund-pref-tag{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--verdigris); margin-bottom:10px;}
+.fund-pref-head{display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px; margin-bottom:8px;}
+.fund-pref-ticker{font-family:'Fraunces',serif; font-size:20px; color:var(--ink);}
+.fund-pref-ticker span{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--brass); margin-right:8px;}
+.fund-pref-alloc{font-size:12.5px; color:var(--brass); margin-bottom:10px;}
+.fund-pref-reason{font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+
+/* ---------- RISK SCORE ---------- */
+.risk-score-row{display:flex; align-items:center; gap:18px; margin-bottom:24px; padding:18px 20px; background:var(--panel); border:1px solid var(--hair);}
+.rs-badge{
+  width:56px; height:56px; border-radius:50%; border:2px solid var(--brass); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono',monospace; font-size:17px; font-weight:600; color:var(--brass);
+}
+.rs-label{font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:4px;}
+.rs-detail{font-size:13.5px; color:var(--ink); line-height:1.5;}
+
+/* ---------- MARKET REFERENCE ---------- */
+.market-ref{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:var(--ink-soft);
+  border:1px solid var(--hair); background:#FFFFFF; padding:12px 16px; margin-bottom:22px; line-height:1.7;
+}
+.market-ref strong{color:var(--ink);}
+
+/* ---------- OUTCOME GRID ---------- */
+.outcome-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--hair); border:1px solid var(--hair); margin-bottom:24px;}
+.outcome-cell{background:var(--panel); padding:22px 18px;}
+.outcome-cell.worst{background:#FBECEC;}
+.outcome-cell.best{background:#EEF4EC;}
+.outcome-cell .label{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:8px;}
+.outcome-cell .value{font-family:'IBM Plex Mono',monospace; font-size:22px; color:var(--brass);}
+.outcome-cell.worst .value{color:var(--crimson);}
+.outcome-cell.best .value{color:var(--verdigris);}
+@media(max-width:860px){.outcome-grid{grid-template-columns:1fr 1fr;}}
+
+/* ---------- CHART ---------- */
+.chart-wrap{border:1px solid var(--hair); background:#FFFFFF; padding:18px; margin-bottom:24px; overflow-x:auto;}
+.chart-wrap svg{display:block; width:100%; height:auto;}
+
+/* ---------- WHAT-IF ---------- */
+.whatif-panel{border:1px solid var(--hair); background:var(--panel); padding:22px 24px; margin-bottom:20px;}
+.whatif-title{font-size:11px; letter-spacing:.06em; text-transform:uppercase; color:var(--brass); margin-bottom:16px;}
+.whatif-row{margin-bottom:14px;}
+.whatif-row:last-child{margin-bottom:0;}
+.whatif-row label{display:block; font-size:13px; color:var(--ink-soft); margin-bottom:8px;}
+.whatif-row input[type=range]{width:100%; accent-color:var(--brass-fill);}
+
+/* ---------- EXPORT ---------- */
+.export-row{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:20px;}
+
+.disclaimer-inline{font-size:12.5px; color:var(--ink-soft); font-style:italic; margin-top:14px; line-height:1.7;}
+
+/* ---------- PRICING ---------- */
+.tier-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--hair); border:1px solid var(--hair);}
+.tier{background:var(--panel); padding:30px 22px; position:relative; display:flex; flex-direction:column;}
+.tier.featured{background:#FBF1DA; border-top:3px solid var(--brass);}
+.tier.current{outline:2px solid var(--brass-fill); outline-offset:-2px;}
+.tier-current-mark{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--brass); margin-bottom:10px;}
+.tier-badge{
+  position:absolute; top:-1px; right:-1px; background:var(--brass-fill); color:var(--ink);
+  font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+  padding:5px 10px;
+}
+.tier-name{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.1em; text-transform:uppercase; color:var(--verdigris); margin-bottom:14px;}
+.tier-price{font-family:'Fraunces',serif; font-size:32px; color:var(--ink); margin-bottom:4px;}
+.tier-price span{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft);}
+.tier-save{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--brass); margin-bottom:18px; min-height:14px;}
+.tier ul{list-style:none; margin-bottom:24px; flex-grow:1;}
+.tier li{font-size:13.5px; color:var(--ink-soft); padding:8px 0; border-top:1px solid var(--hair); line-height:1.4;}
+.tier li:first-child{border-top:none;}
+
+@media(max-width:860px){
+  .form-grid{grid-template-columns:1fr;}
+  .tier-grid{grid-template-columns:1fr 1fr;}
+  .hero h1{font-size:36px;}
+  .chart-wrap svg{min-width:600px;}
+  section{padding:56px 24px;}
+  nav{padding:18px 24px;}
+}
+@media(max-width:520px){.tier-grid{grid-template-columns:1fr;}}
+
+/* ---------- PLAN BAR ---------- */
+.plan-bar{
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:14px;
+  padding:14px 48px; background:var(--panel); border-bottom:1px solid var(--hair);
+}
+.plan-bar-label{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-soft);}
+.plan-switch{display:flex; gap:6px; flex-wrap:wrap;}
+.plan-chip{
+  font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.05em; text-transform:uppercase;
+  padding:8px 14px; border:1px solid var(--hair); background:#FFFFFF; color:var(--ink-soft); cursor:pointer; transition:.15s;
+}
+.plan-chip:hover{border-color:var(--brass);}
+.plan-chip.active{background:var(--brass-fill); border-color:var(--brass-fill); color:var(--ink); font-weight:600;}
+@media(max-width:860px){.plan-bar{padding:14px 24px;}}
+
+/* ---------- LOCKED CARD ---------- */
+.locked-card{
+  border:1px dashed var(--hair); background:var(--panel); padding:36px 30px;
+  text-align:left; position:relative; overflow:hidden;
+}
+.locked-tag{
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--crimson); border:1px solid var(--crimson); padding:4px 10px; display:inline-block; margin-bottom:16px;
+}
+.locked-card h4{font-family:'Fraunces',serif; font-size:19px; color:var(--ink); margin-bottom:10px;}
+.locked-card p{font-size:14px; color:var(--ink-soft); max-width:520px; margin-bottom:18px; line-height:1.55;}
+.gated{display:none;}
+.gated.unlocked{display:block;}
+.locked-card.hidden{display:none;}
+
+/* ---------- SUB-ALLOCATION DETAIL ---------- */
+.suballoc-group{margin-bottom:20px;}
+.suballoc-group-title{font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--brass); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--hair);}
+.suballoc-row{display:flex; justify-content:space-between; font-size:14px; color:var(--ink-soft); padding:7px 0;}
+.suballoc-row span:last-child{font-family:'IBM Plex Mono',monospace; color:var(--ink);}
+
+/* ---------- REBALANCE TABLE ---------- */
+.rebal-table{width:100%; border-collapse:collapse; margin-bottom:16px;}
+.rebal-table th{
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase;
+  color:var(--ink-soft); text-align:left; padding:10px 14px; border-bottom:1px solid var(--hair);
+}
+.rebal-table td{font-size:14px; color:var(--ink); padding:12px 14px; border-bottom:1px solid var(--hair);}
+.rebal-table td.mono, .rebal-table th.mono{font-family:'IBM Plex Mono',monospace;}
+.next-review{
+  border-left:2px solid var(--verdigris); background:var(--panel); padding:16px 20px; font-size:14px; color:var(--ink-soft); line-height:1.6;
+}
+.next-review strong{color:var(--ink);}
+
+/* ---------- HISTORY / DASHBOARD ---------- */
+.hist-list{display:flex; flex-direction:column; gap:1px; background:var(--hair); border:1px solid var(--hair); margin-bottom:16px;}
+.hist-row{background:var(--panel); padding:18px 22px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;}
+.hist-row-main{display:flex; flex-direction:column; gap:4px;}
+.hist-row-title{font-family:'Fraunces',serif; font-size:16px; color:var(--ink);}
+.hist-row-meta{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft);}
+.hist-row-actions{display:flex; gap:8px;}
+.mini-btn{
+  font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase;
+  padding:8px 12px; border:1px solid var(--hair); background:#FFFFFF; color:var(--ink-soft); cursor:pointer;
+}
+.mini-btn:hover{border-color:var(--brass); color:var(--brass);}
+.empty-state{padding:32px; text-align:center; color:var(--ink-soft); font-size:14px; border:1px dashed var(--hair);}
+
+.dash-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1px; background:var(--hair); border:1px solid var(--hair);}
+.dash-card{background:var(--panel); padding:22px;}
+.dash-card .tag{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--verdigris); margin-bottom:8px;}
+.dash-card h4{font-family:'Fraunces',serif; font-size:18px; color:var(--ink); margin-bottom:10px;}
+.dash-stat{display:flex; justify-content:space-between; font-size:13px; color:var(--ink-soft); padding:5px 0; border-top:1px solid var(--hair);}
+.dash-stat:first-of-type{border-top:none; margin-top:6px;}
+.dash-stat span:last-child{font-family:'IBM Plex Mono',monospace; color:var(--brass);}
+
+/* ---------- AUTH / CHECKOUT MODALS ---------- */
+.modal-veil.hidden{display:none;}
+.modal-close{
+  position:absolute; top:18px; right:18px; width:28px; height:28px;
+  border:1px solid var(--hair); background:#FFFFFF; color:var(--ink-soft);
+  cursor:pointer; font-size:14px; line-height:1; display:flex; align-items:center; justify-content:center;
+}
+.modal-close:hover{border-color:var(--brass); color:var(--brass);}
+.modal-wide{max-width:480px;}
+.demo-caption{font-size:11.5px; color:var(--ink-soft); font-style:italic; text-align:center; margin-top:16px; line-height:1.5;}
+
+.provider-btn{
+  width:100%; display:flex; align-items:center; gap:12px; padding:12px 16px;
+  border:1px solid var(--hair); background:#FFFFFF; color:var(--ink);
+  font-family:'Inter',sans-serif; font-size:13.5px; font-weight:500; cursor:pointer;
+  margin-bottom:10px; transition:.15s;
+}
+.provider-btn:hover{border-color:var(--brass);}
+.provider-mark{
+  width:22px; height:22px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'IBM Plex Mono',monospace; font-size:11px; font-weight:600; color:#FFFFFF;
+}
+.provider-mark.google{background:#4285C6;}
+
+.auth-divider{display:flex; align-items:center; gap:12px; margin:18px 0; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft);}
+.auth-divider::before, .auth-divider::after{content:''; flex:1; height:1px; background:var(--hair);}
+
+.form-row{margin-bottom:16px;}
+.form-row label{display:block; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--brass); margin-bottom:8px;}
+.form-row input{width:100%; background:#FFFFFF; border:1px solid var(--hair); color:var(--ink); padding:12px 14px; font-family:'Inter',sans-serif; font-size:14px; outline:none;}
+.form-row input:focus{border-color:var(--brass);}
+.form-row-split{display:grid; grid-template-columns:2fr 1fr 1fr; gap:12px;}
+
+.plan-summary{
+  border:1px solid var(--hair); background:var(--panel); padding:18px 20px; margin-bottom:22px;
+  display:flex; justify-content:space-between; align-items:center;
+}
+.plan-summary .name{font-family:'Fraunces',serif; font-size:18px; color:var(--ink);}
+.plan-summary .price{font-family:'IBM Plex Mono',monospace; font-size:15px; color:var(--brass);}
+
+.account-badge{display:flex; align-items:center; gap:14px;}
+.account-badge .who{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--ink-soft);}
+.account-badge .who strong{color:var(--ink);}
+.link-btn{background:none; border:none; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.05em; text-transform:uppercase; color:var(--brass); cursor:pointer; padding:0;}
+.link-btn:hover{text-decoration:underline;}
+
+.checkout-status{display:none; text-align:center; padding:20px 0;}
+.checkout-status.active{display:block;}
+.checkout-status .stamp{position:static; transform:scale(1) rotate(-6deg); animation:none; margin:0 auto 14px;}
+
+/* ---------- PRICE LOOKUP ---------- */
+.price-lookup-row{display:flex; gap:12px; margin-bottom:22px; flex-wrap:wrap;}
+.price-lookup-row input{flex:1; min-width:160px; background:#FFFFFF; border:1px solid var(--hair); color:var(--ink); padding:13px 14px; font-family:'IBM Plex Mono',monospace; font-size:15px; text-transform:uppercase; outline:none;}
+.price-lookup-row input:focus{border-color:var(--brass);}
+.price-card{border:1px solid var(--hair); background:var(--panel); padding:28px 30px; display:none;}
+.price-card.visible{display:block;}
+.price-card-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--hair); flex-wrap:wrap; gap:10px;}
+.price-card-symbol{font-family:'Fraunces',serif; font-size:26px; color:var(--ink);}
+.price-card-price{font-family:'IBM Plex Mono',monospace; font-size:28px; color:var(--brass);}
+.price-card-change{font-family:'IBM Plex Mono',monospace; font-size:14px;}
+.price-card-change.up{color:var(--verdigris);}
+.price-card-change.down{color:var(--crimson);}
+.price-stat-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:16px; margin-bottom:6px;}
+.price-stat .label{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px;}
+.price-stat .val{font-family:'IBM Plex Mono',monospace; font-size:15px; color:var(--ink);}
+.price-error{border:1px solid var(--crimson); background:#FBECEC; color:var(--crimson); padding:16px 18px; font-size:13.5px; display:none;}
+.price-error.visible{display:block;}
+.price-key-notice{border:1px solid var(--hair); background:#FFFFFF; padding:14px 16px; font-size:12.5px; color:var(--ink-soft); margin-bottom:20px; line-height:1.6;}
+.price-key-notice code{background:var(--panel); padding:2px 6px; font-family:'IBM Plex Mono',monospace;}
+
+/* ---------- ETF CATEGORY CHIPS ---------- */
+.category-block{margin-bottom:18px;}
+.category-label{font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.08em; text-transform:uppercase; color:var(--brass); margin-bottom:9px;}
+.category-chips{display:flex; gap:8px; flex-wrap:wrap;}
+.category-chip{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; padding:8px 13px;
+  border:1px solid var(--hair); background:#FFFFFF; color:var(--ink-soft); cursor:pointer; transition:.15s;
+}
+.category-chip:hover{border-color:var(--brass); color:var(--brass);}
+
+/* ---------- HISTORICAL RETURN CHART ---------- */
+.return-tabs{display:flex; gap:8px; margin:24px 0 14px;}
+.return-tab{
+  font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.05em; text-transform:uppercase;
+  padding:9px 18px; border:1px solid var(--hair); background:#FFFFFF; color:var(--ink-soft); cursor:pointer;
+}
+.return-tab.active{background:var(--brass-fill); border-color:var(--brass-fill); color:var(--ink); font-weight:600;}
+.return-pct{font-family:'IBM Plex Mono',monospace; font-size:15px; margin-bottom:12px;}
+.return-pct.up{color:var(--verdigris);}
+.return-pct.down{color:var(--crimson);}
+.return-chart-wrap{border:1px solid var(--hair); background:#FFFFFF; padding:16px; display:none;}
+.return-chart-wrap.visible{display:block;}
+.return-chart-wrap svg{display:block; width:100%; height:auto;}
+
+/* ---------- TUTORIAL ---------- */
+.tutorial-steps{list-style:none; padding:0 4px 22px; counter-reset:step;}
+.tutorial-steps li{position:relative; padding-left:40px; margin-bottom:16px; font-size:14px; color:var(--ink-soft); line-height:1.6; counter-increment:step;}
+.tutorial-steps li:last-child{margin-bottom:0;}
+.tutorial-steps li::before{
+  content:counter(step); position:absolute; left:0; top:-1px; width:26px; height:26px; border-radius:50%;
+  background:var(--brass-fill); color:var(--ink); font-family:'IBM Plex Mono',monospace; font-size:12px; font-weight:600;
+  display:flex; align-items:center; justify-content:center;
+}
+.tutorial-steps li strong{color:var(--ink);}
+
+/* ---------- FOOTER ---------- */
+footer{border-top:1px solid var(--hair); padding:44px 48px; }
+.footer-inner{max-width:1100px; margin:0 auto;}
+.footer-legal{font-size:12.5px; color:var(--ink-soft); line-height:1.75; max-width:780px; overflow:hidden; max-height:3.5em; transition:max-height .3s ease;}
+.footer-legal.expanded{max-height:600px;}
+.footer-legal strong{color:var(--ink);}
+.footer-toggle{
+  margin-top:10px; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.06em; text-transform:uppercase;
+  color:var(--brass); background:none; border:none; cursor:pointer; padding:0;
+}
+.footer-toggle:hover{text-decoration:underline;}
+.footer-bottom{margin-top:24px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--ink-soft); letter-spacing:.05em;}
+@media print{
+  body::before, .site-motes, .sticky-head, .plan-bar, .hero-motes,
+  #about, #faq, #pricing, footer, .locked-card, .whatif-panel, .export-row,
+  .modal-veil { display:none !important; }
+  .output { display:block !important; }
+  section { padding:20px 0 !important; break-inside:avoid; }
+  body { background:#fff !important; }
+}
+
+/* ---------- STRESS TEST ---------- */
+.stress-btn-row{display:flex; flex-wrap:wrap; gap:10px; margin:18px 0;}
+.stress-btn{
+  font-family:'IBM Plex Mono',monospace; font-size:11.5px; letter-spacing:.04em; text-transform:uppercase;
+  padding:10px 16px; border:1px solid var(--hair); background:#FFFFFF; color:var(--ink-soft); cursor:pointer;
+  transition:.15s;
+}
+.stress-btn:hover{border-color:var(--brass); color:var(--ink);}
+.stress-btn.active{background:var(--crimson); border-color:var(--crimson); color:#fff;}
+.stress-result{display:none;}
+.stress-result.visible{display:block;}
+.stress-summary{display:flex; gap:22px; flex-wrap:wrap; margin:14px 0;}
+.stress-stat{font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--ink-soft);}
+.stress-stat b{display:block; font-size:19px; color:var(--crimson); font-family:'Fraunces',serif; font-weight:600;}
+
+/* ---------- REAL VALUE / INFLATION CELL ---------- */
+.outcome-cell.real{border-left:2px solid var(--verdigris);}
+
+/* ---------- RETIREMENT WITHDRAWAL ---------- */
+.withdraw-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:18px; margin:18px 0;}
+.withdraw-result-row{display:flex; gap:24px; flex-wrap:wrap; margin:16px 0;}
+.withdraw-cell{font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:var(--ink-soft);}
+.withdraw-cell b{display:block; font-size:22px; font-family:'Fraunces',serif; color:var(--ink); font-weight:600;}
+.withdraw-cell.risk b{color:var(--crimson);}
+
+/* ---------- AI ADVISOR ---------- */
+.ai-chat-wrap{border:1px solid var(--hair); background:#FFFFFF; padding:20px; max-height:480px; overflow-y:auto; margin:16px 0;}
+.ai-msg{margin-bottom:16px; font-size:14.5px; line-height:1.6;}
+.ai-msg .who{font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--brass); margin-bottom:4px;}
+.ai-msg.user .who{color:var(--ink-soft);}
+.ai-msg p{margin:0 0 8px 0;}
+.ai-input-row{display:flex; gap:10px; margin-top:10px;}
+.ai-input-row input{flex:1; padding:12px 14px; border:1px solid var(--hair); background:#FFFFFF; font-family:'Inter',sans-serif; font-size:14px;}
+.ai-input-row input:focus{outline:none; border-color:var(--brass);}
+.ai-thinking{font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--ink-soft); font-style:italic;}
+.ai-suggest-row{display:flex; flex-wrap:wrap; gap:8px; margin:12px 0;}
+.ai-suggest-chip{font-size:12px; padding:7px 12px; border:1px solid var(--hair); background:var(--panel); cursor:pointer; color:var(--ink-soft);}
+.ai-suggest-chip:hover{border-color:var(--brass); color:var(--ink);}
+.ai-review-box{border:1px solid var(--hair); background:#FFFFFF; padding:22px; margin-top:16px; font-size:14.5px; line-height:1.7;}
+.ai-review-box h5{font-family:'Fraunces',serif; margin:14px 0 6px; font-size:16px;}
+.ai-review-box p{margin:0 0 10px;}
+
+/* ---------- MILESTONES ---------- */
+.milestone-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-top:18px;}
+.milestone-badge{border:1px solid var(--hair); background:#FFFFFF; padding:14px; text-align:center; opacity:.35; filter:grayscale(1);}
+.milestone-badge.earned{opacity:1; filter:none; border-color:var(--brass);}
+.milestone-badge .icon{font-size:24px; margin-bottom:6px;}
+.milestone-badge .name{font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
+
+/* ---------- COMPARISON ---------- */
+.compare-picker{display:flex; gap:14px; flex-wrap:wrap; margin:14px 0;}
+.compare-picker select{padding:10px 12px; border:1px solid var(--hair); font-family:'Inter',sans-serif; font-size:13px; background:#FFFFFF;}
+.compare-table-wrap{overflow-x:auto;}
+table.compare-table{width:100%; border-collapse:collapse; margin-top:14px; font-size:13.5px;}
+table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:1px solid var(--hair); text-align:left;}
+/* ---------- USAGE LIMIT (Weekly free tier) ---------- */
+.usage-panel{margin-top:4px; border:1px solid var(--hair); background:var(--panel); padding:16px 18px;}
+.usage-row{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
+.usage-label{font-size:11.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft);}
+.usage-reset{font-size:11px; color:var(--ink-soft);}
+.usage-bar-track{height:6px; background:var(--hair); margin-top:10px; overflow:hidden;}
+.usage-bar-fill{height:100%; background:var(--brass-fill); transition:width .3s ease, background .3s ease;}
+.usage-bar-fill.warn{background:var(--crimson);}
+.usage-bar-fill.blocked{background:var(--crimson);}
+.usage-warning{margin-top:10px; font-size:13px; color:var(--crimson); line-height:1.55;}
+.usage-warning strong{color:var(--crimson);}
+.mf-note{font-size:10.5px; color:var(--ink-soft); text-transform:uppercase; letter-spacing:.04em; border:1px solid var(--hair); padding:8px 12px; white-space:nowrap;}
+.backronym{font-size:11px; letter-spacing:.03em; color:var(--ink-soft); margin:18px 0 26px; max-width:640px; line-height:1.7;}
+.promo-banner{display:flex; justify-content:space-between; align-items:center; gap:16px; flex-wrap:wrap; border:1px solid var(--brass); background:rgba(180,140,60,.08); padding:16px 20px; margin:20px 0 28px;}
+.promo-text{font-size:14px; color:var(--ink);}
+.promo-count{font-size:11.5px; color:var(--crimson); white-space:nowrap;}
+</style>
+<script type="module">
+  // Real Firebase project — Google Sign-In actually authenticates against
+  // this project. Note: this will only complete successfully if the page's
+  // current domain is listed under Authentication > Settings > Authorized
+  // domains in the Firebase console for this project (localhost is usually
+  // authorized by default; a sandboxed preview domain typically is not).
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
+  import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDE2Tx3eSvLFtarYJ5jSMPInCyLdK1BPDM",
+    authDomain: "investment-strategy-advisor.firebaseapp.com",
+    projectId: "investment-strategy-advisor",
+    storageBucket: "investment-strategy-advisor.firebasestorage.app",
+    messagingSenderId: "284246862404",
+    appId: "1:284246862404:web:4fb4cf8f35a0aacf986a11",
+    measurementId: "G-V2X0FLCMCR"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  isSupported().then(ok => { if(ok) getAnalytics(app); }).catch(()=>{});
+
+  const auth = getAuth(app);
+  const googleProvider = new GoogleAuthProvider();
+
+  window.__firebaseGoogleSignIn = function(){
+    return signInWithPopup(auth, googleProvider).then((result)=>{
+      const user = result.user;
+      return { name: user.displayName || 'Google User', email: user.email || '' };
+    });
+  };
+</script>
+</head>
+<body>
+
+<div class="site-motes">
+  <div class="mote" style="width:4px; height:4px; top:8%; left:6%; animation-duration:16s;"></div>
+  <div class="mote" style="width:3px; height:3px; top:22%; left:92%; animation-duration:19s; animation-delay:2s;"></div>
+  <div class="mote" style="width:5px; height:5px; top:38%; left:3%; animation-duration:14s; animation-delay:4s;"></div>
+  <div class="mote" style="width:3px; height:3px; top:55%; left:95%; animation-duration:18s; animation-delay:1s;"></div>
+  <div class="mote" style="width:4px; height:4px; top:70%; left:8%; animation-duration:15s; animation-delay:5s;"></div>
+  <div class="mote" style="width:3px; height:3px; top:85%; left:90%; animation-duration:20s; animation-delay:3s;"></div>
+  <div class="mote" style="width:4px; height:4px; top:95%; left:15%; animation-duration:17s; animation-delay:6s;"></div>
+</div>
+
+<!-- ================= DISCLAIMER MODAL ================= -->
+<div class="modal-veil" id="modalVeil">
+  <div class="veil-motes">
+    <div class="mote" style="width:5px; height:5px; top:15%; left:20%; animation-duration:10s;"></div>
+    <div class="mote" style="width:3px; height:3px; top:25%; left:75%; animation-duration:13s; animation-delay:1s;"></div>
+    <div class="mote" style="width:4px; height:4px; top:70%; left:15%; animation-duration:11s; animation-delay:2s;"></div>
+    <div class="mote" style="width:6px; height:6px; top:80%; left:85%; animation-duration:15s; animation-delay:.5s;"></div>
+    <div class="mote" style="width:3px; height:3px; top:50%; left:60%; animation-duration:12s; animation-delay:3s;"></div>
+    <div class="mote" style="width:4px; height:4px; top:10%; left:50%; animation-duration:14s; animation-delay:1.5s;"></div>
+    <div class="mote" style="width:3px; height:3px; top:60%; left:35%; animation-duration:9s; animation-delay:2.5s;"></div>
+  </div>
+  <div class="modal">
+    <div class="corner tl"></div>
+    <div class="corner tr"></div>
+    <div class="corner bl"></div>
+    <div class="corner br"></div>
+
+    <div class="crest-wrap">
+      <svg viewBox="0 0 100 100" width="60" height="60">
+        <circle cx="50" cy="50" r="46" fill="none" stroke="var(--brass)" stroke-width="1"/>
+        <circle cx="50" cy="50" r="38" fill="none" stroke="var(--brass)" stroke-width=".6"/>
+        <g stroke="var(--brass)" stroke-width="1">
+          <line x1="50" y1="1" x2="50" y2="7"/>
+          <line x1="50" y1="93" x2="50" y2="99"/>
+          <line x1="1" y1="50" x2="7" y2="50"/>
+          <line x1="93" y1="50" x2="99" y2="50"/>
+          <line x1="15.5" y1="15.5" x2="19.8" y2="19.8"/>
+          <line x1="84.5" y1="15.5" x2="80.2" y2="19.8"/>
+          <line x1="15.5" y1="84.5" x2="19.8" y2="80.2"/>
+          <line x1="84.5" y1="84.5" x2="80.2" y2="80.2"/>
+        </g>
+        <text x="50" y="59" font-family="Fraunces, serif" font-size="27" font-weight="600" fill="var(--brass)" text-anchor="middle">KA</text>
+      </svg>
+    </div>
+
+    <div class="modal-eyebrow">Before You Enter — Exhibit Zero</div>
+    <h2 class="serif">Engagement Terms</h2>
+    <div class="doc-ref" id="docRef">Ref. No. KA-EX0 · Issued —</div>
+    <div class="doc-divider"><div class="diamond"></div></div>
+    <div class="modal-body">
+      <ul>
+        <li><strong>Not licensed advice.</strong> Kinlgali Investing is an educational planning tool — not a registered investment adviser, broker-dealer, bank, or tax practice. Nothing here is personalized investment, legal, or tax advice.</li>
+        <li><strong>General, not personal.</strong> Suggestions come from general planning principles and the inputs you provide. They don't see your full financial picture and don't replace a licensed advisor, CPA, or attorney.</li>
+        <li><strong>Risk of loss is real.</strong> All investing can lose money, including your principal. Historical averages shown here are illustrative only — never a guarantee of future results.</li>
+        <li><strong>The decision is yours.</strong> Opening an account or buying a security is your call, at your own risk. Kinlgali Investing bears no liability for losses or outcomes from using this tool.</li>
+      </ul>
+    </div>
+    <div class="ack-row">
+      <input type="checkbox" id="ackBox">
+      <label for="ackBox">I have read and acknowledge the terms above. I understand that all investment decisions are my own responsibility, and that Kinlgali Investing assumes no liability for any resulting losses.</label>
+    </div>
+    <button class="btn btn-solid btn-block" id="enterBtn" disabled>Enter the Advisory</button>
+  </div>
+</div>
+
+<!-- ================= SIGN IN / CREATE ACCOUNT MODAL ================= -->
+<div class="modal-veil hidden" id="authVeil">
+  <div class="modal modal-wide" style="position:relative;">
+    <button class="modal-close" onclick="closeAuthModal()">✕</button>
+    <div class="modal-eyebrow">Account Access</div>
+    <h2 class="serif">Sign In or Create an Account</h2>
+
+    <button class="provider-btn" id="googleSignInBtn" onclick="authenticate('google')">
+      <div class="provider-mark google">G</div> Continue with Google
+    </button>
+
+    <div class="auth-divider">or continue with email</div>
+
+    <div class="form-row">
+      <label>Full Name</label>
+      <input type="text" id="authName" placeholder="Jordan Blake">
+    </div>
+    <div class="form-row">
+      <label>Email</label>
+      <input type="text" id="authEmail" placeholder="you@email.com">
+    </div>
+    <div class="form-row">
+      <label>Password</label>
+      <input type="password" id="authPassword" placeholder="••••••••">
+    </div>
+    <button class="btn btn-solid btn-block" onclick="authenticate('email')">Continue</button>
+
+    <div class="demo-caption">Google sign-in above uses a real Firebase project — it will complete a genuine Google authentication. Email sign-in below is a prototype only: no real account is created and passwords are never stored.</div>
+  </div>
+</div>
+
+<!-- ================= CHECKOUT MODAL ================= -->
+<div class="modal-veil hidden" id="checkoutVeil">
+  <div class="modal modal-wide" style="position:relative;">
+    <button class="modal-close" onclick="closeCheckoutModal()">✕</button>
+    <div class="modal-eyebrow">Retainer Setup</div>
+    <h2 class="serif">Confirm Your Plan</h2>
+
+    <div class="plan-summary">
+      <div class="name serif" id="checkoutPlanName">—</div>
+      <div class="price mono" id="checkoutPlanPrice">—</div>
+    </div>
+
+    <div id="checkoutForm">
+      <div class="form-row">
+        <label>Billing Email <span style="opacity:.6;">(optional — pulled from your account if signed in)</span></label>
+        <input type="text" id="ccEmail" placeholder="you@email.com">
+      </div>
+      <button class="btn btn-solid btn-block" id="confirmSubBtn" onclick="submitCheckout()">Continue to Payment</button>
+      <div class="demo-caption" id="checkoutError" style="display:none; color:var(--crimson);"></div>
+      <div class="demo-caption">You'll enter card details on Stripe's own secure checkout page next — this site never sees or stores your card number.</div>
+    </div>
+
+    <div class="checkout-status" id="checkoutStatus">
+      <div class="stamp mono" style="margin:0 auto 14px;"><span>DRAFT</span><b>APPROVED</b><span>KINLGALI</span></div>
+      <div style="font-family:'Fraunces',serif; font-size:19px; color:var(--ink); margin-bottom:6px;" id="checkoutSuccessText"></div>
+      <div class="demo-caption">No real payment was processed.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= APP ================= -->
+<div class="app" id="app">
+
+  <div class="sticky-head">
+    <nav>
+      <div class="wordmark">KINLGALI<span>INVESTING</span></div>
+      <div class="account-badge" id="accountBadge">
+        <div class="nav-tag">Private Advisory · Est. MMXXIV</div>
+        <button class="btn" style="padding:9px 18px; font-size:11px;" onclick="openAuthModal(null)">Sign In</button>
+      </div>
+    </nav>
+    <div class="tab-bar" id="tabBar">
+      <div class="tab-item" data-target="topHero">Home</div>
+      <div class="tab-item" data-target="about">About</div>
+      <div class="tab-item" data-target="brief">Draft a Strategy</div>
+      <div class="tab-item" data-target="historySection">History</div>
+      <div class="tab-item" data-target="dashboardSection">Dashboard</div>
+      <div class="tab-item" data-target="aiAdvisorSection">AI Advisor</div>
+      <div class="tab-item" data-target="pricing">Pricing</div>
+      <div class="tab-item" data-target="priceLookup">Price Lookup</div>
+      <div class="tab-item" data-target="tutorial">Getting Started</div>
+      <div class="tab-item" data-target="faq">FAQ</div>
+    </div>
+  </div>
+
+  <div class="plan-bar">
+    <div class="plan-bar-label">Viewing As — <span id="planLabel" style="color:var(--brass);">Weekly Plan</span></div>
+    <div class="plan-switch" id="planSwitch">
+      <div class="plan-chip active" data-plan="weekly">Weekly</div>
+      <div class="plan-chip" data-plan="monthly">Monthly</div>
+      <div class="plan-chip" data-plan="yearly">Yearly</div>
+    </div>
+  </div>
+
+  <div class="hero" id="topHero">
+    <div class="hero-motes">
+      <div class="mote" style="width:5px; height:5px; top:18%; left:12%; animation-duration:9s;"></div>
+      <div class="mote" style="width:3px; height:3px; top:32%; left:78%; animation-duration:12s; animation-delay:1s;"></div>
+      <div class="mote" style="width:4px; height:4px; top:64%; left:22%; animation-duration:10s; animation-delay:2.5s;"></div>
+      <div class="mote" style="width:6px; height:6px; top:74%; left:88%; animation-duration:14s; animation-delay:.5s;"></div>
+      <div class="mote" style="width:3px; height:3px; top:12%; left:55%; animation-duration:11s; animation-delay:3s;"></div>
+      <div class="mote" style="width:4px; height:4px; top:48%; left:40%; animation-duration:13s; animation-delay:1.5s;"></div>
+    </div>
+    <div class="hero-eyebrow">Formal Financial Planning Counsel</div>
+    <h1 class="serif">Deliberate strategy, <em>drafted</em> around the date you need your money.</h1>
+    <p class="lede">State your objective and your timeline. We will draft the account structure and allocation model suited to it — the same discipline a private planning desk would apply, delivered as a formal brief in moments.</p>
+    <div class="backronym mono">K·nowledge — I·nsight — N·avigation — L·earning — G·rowth — A·nalytics — L·eadership — I·nvesting</div>
+    <div class="hero-actions">
+      <button class="btn btn-solid" onclick="document.getElementById('brief').scrollIntoView({behavior:'smooth'})">Begin Your Consultation</button>
+      <button class="btn-ghost" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Membership Terms →</button>
+    </div>
+  </div>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about">
+    <div class="section-head">
+      <div class="exhibit-mark mono">ABOUT</div>
+      <h2>The Desk's Approach</h2>
+    </div>
+    <p class="section-sub">Kinlgali Investing is an education-only planning tool, built to think the way a formal advisory desk would — starting from your goal and timeline, not from a hot tip.</p>
+    <div class="about-grid">
+      <div class="about-cell">
+        <div class="mk">Principle 01</div>
+        <h4>General, not personal</h4>
+        <p>Every brief comes from published planning principles, not your full financial picture. It's a starting point for your own research, not a final answer.</p>
+      </div>
+      <div class="about-cell">
+        <div class="mk">Principle 02</div>
+        <h4>Asset classes, not stock picks</h4>
+        <p>No single-stock recommendations, ever. Diversified index funds carry less uncompensated risk than betting on one company — see Exhibit E for specifics.</p>
+      </div>
+      <div class="about-cell">
+        <div class="mk">Principle 03</div>
+        <h4>The decision stays yours</h4>
+        <p>Nothing here opens an account or moves money on your behalf. Every brief ends the same way it should: with you deciding what to actually do.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ EXHIBIT A: THE BRIEF ============ -->
+  <section id="brief">
+    <div class="section-head">
+      <div class="exhibit-mark mono">EXHIBIT A</div>
+      <h2>The Brief</h2>
+    </div>
+    <p class="section-sub">Five particulars are required to draft your structure: the purpose of the funds, the date they are needed, your age, the capital available, and your comfort with fluctuation along the way.</p>
+
+    <div class="form-grid">
+      <div class="field">
+        <label>Purpose of Funds</label>
+        <select id="goalSelect">
+          <option value="education">Child's Education</option>
+          <option value="retirement">Retirement</option>
+          <option value="home">Home Down Payment</option>
+          <option value="emergency">Emergency Reserve</option>
+          <option value="wealth">General Wealth Accumulation</option>
+          <option value="major">Major Purchase (Vehicle, Wedding, etc.)</option>
+          <option value="other">Other / Unspecified</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label>Funds Are Needed In</label>
+        <div class="years-row">
+          <input type="range" id="yearsSlider" min="0" max="35" value="4">
+          <div class="years-readout mono" id="yearsReadout">4 yrs</div>
+        </div>
+        <div class="field-hint">Move the slider to the year the funds must be available for use.</div>
+      </div>
+
+      <div class="field">
+        <label>Your Age</label>
+        <input type="number" id="ageInput" value="30" min="16" max="100" step="1">
+        <div class="field-hint">Used only to weight the risk score — younger investors generally have more time to recover from downturns.</div>
+      </div>
+
+      <div class="field">
+        <label>Capital Available Now (Lump Sum)</label>
+        <div class="money-input"><input type="number" id="lumpInput" value="2000" min="0" step="100"></div>
+      </div>
+
+      <div class="field">
+        <label>Ongoing Monthly Contribution</label>
+        <div class="money-input"><input type="number" id="monthlyInput" value="250" min="0" step="25"></div>
+      </div>
+
+      <div class="field field-full">
+        <label>Comfort With Market Fluctuation</label>
+        <div class="risk-row" id="riskRow">
+          <div class="risk-btn" data-risk="conservative">Conservative</div>
+          <div class="risk-btn active" data-risk="balanced">Balanced</div>
+          <div class="risk-btn" data-risk="growth">Growth</div>
+          <div class="risk-btn" data-risk="aggressive">Aggressive</div>
+        </div>
+        <div class="field-hint">This is one input into your Risk Score below (Exhibit C) — age and time horizon are weighted in too, rather than your comfort level alone deciding the allocation.</div>
+      </div>
+
+      <div class="field field-full">
+        <label>Interested in Any of These Fund Types? (Optional — select all that apply)</label>
+        <div class="risk-row" id="fundPrefRow">
+          <div class="risk-btn active" data-pref="none">No, Skip This</div>
+          <div class="risk-btn" data-pref="sector">Sector ETF</div>
+          <div class="risk-btn" data-pref="international">International ETF</div>
+          <div class="risk-btn" data-pref="targetdate">Target-Date ("Year") Fund</div>
+          <div class="risk-btn" data-pref="esg">ESG / Sustainable Fund</div>
+        </div>
+        <div class="field-hint">Pick one, two, or all three — Exhibit C will show a specific fund and a suggested allocation for each one you select, chosen from your Risk Score and timeline.</div>
+      </div>
+
+      <div class="field field-full submit-row">
+        <button class="btn btn-solid" id="draftBtn" onclick="draftStrategy()">Draft My Strategy</button>
+        <div class="field-hint">A formal brief will be prepared below — this takes a moment.</div>
+      </div>
+
+      <div class="field field-full usage-panel" id="usagePanel" style="display:none;">
+        <div class="usage-row">
+          <div class="usage-label mono" id="usageLabel">0 / 0 free drafts used this window</div>
+          <div class="usage-reset mono" id="usageReset"></div>
+        </div>
+        <div class="usage-bar-track"><div class="usage-bar-fill" id="usageBarFill" style="width:0%;"></div></div>
+        <div class="usage-warning" id="usageWarning" style="display:none;"></div>
+      </div>
+    </div>
+  </section>
+
+  <div class="stamp-wrap" id="stampWrap">
+    <div class="stamp mono"><span>DRAFT</span><b>REVIEWED</b><span>KA DESK</span></div>
+    <div class="stamp-caption mono">preparing exhibits B – D…</div>
+  </div>
+
+  <!-- ============ OUTPUT ============ -->
+  <div class="output" id="output">
+
+    <section style="padding-top:0;">
+      <div class="section-head">
+        <div class="exhibit-mark mono">EXHIBIT B</div>
+        <h2>Recommended Account Structure</h2>
+      </div>
+      <p class="section-sub" id="acctSub"></p>
+      <div class="card-grid" id="acctGrid"></div>
+      <div class="note-box" id="acctNote"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div class="exhibit-mark mono">EXHIBIT C</div>
+        <h2>Target Allocation</h2>
+      </div>
+      <div class="risk-score-row" id="riskScoreRow">
+        <div class="rs-badge" id="rsBadge">—</div>
+        <div class="rs-text">
+          <div class="rs-label mono">Risk Score</div>
+          <div class="rs-detail" id="rsDetail">Draft a strategy to calculate your score.</div>
+        </div>
+      </div>
+      <p class="section-sub">Shown as asset <em style="color:var(--ink); font-style:normal;">classes</em>, not individual stocks — single-stock picks carry uncompensated company risk, so a formal recommendation of one falls outside this tool's scope. Most disciplined portfolios use low-cost, diversified index funds instead.</p>
+      <div class="alloc-bar" id="allocBar"></div>
+      <div class="alloc-legend" id="allocLegend"></div>
+      <div class="fund-pref-card" id="fundPrefCard"></div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <div class="exhibit-mark mono">EXHIBIT D</div>
+        <h2>Simulated Outcomes</h2>
+      </div>
+      <p class="section-sub" id="contribNote"></p>
+
+      <div class="market-ref" id="marketRef"></div>
+
+      <div class="outcome-grid">
+        <div class="outcome-cell">
+          <div class="label mono">Total Contributed</div>
+          <div class="value mono" id="totalContrib">$0</div>
+        </div>
+        <div class="outcome-cell worst">
+          <div class="label mono">Crash Scenario (5th pct.)</div>
+          <div class="value mono" id="worstCase">$0</div>
+        </div>
+        <div class="outcome-cell probable">
+          <div class="label mono">Probable (Median)</div>
+          <div class="value mono" id="totalGrowth">$0</div>
+        </div>
+        <div class="outcome-cell best">
+          <div class="label mono">Best Case (95th pct.)</div>
+          <div class="value mono" id="bestCase">$0</div>
+        </div>
+        <div class="outcome-cell real">
+          <div class="label mono">Median in Today's Dollars</div>
+          <div class="value mono" id="realMedian">$0</div>
+        </div>
+      </div>
+      <div class="disclaimer-inline" id="realMedianNote" style="margin-bottom:18px;"></div>
+
+      <div class="chart-wrap" id="monteCarloChart"></div>
+
+      <div class="section-head" style="margin-top:34px;">
+        <div class="exhibit-mark mono">EXHIBIT D2</div>
+        <h2 style="font-size:22px;">Historical Stress Tests</h2>
+      </div>
+      <p class="section-sub">Instead of a randomized simulation, apply the actual sequence of historical market years to your allocation — showing how this specific mix would have weathered a real, named downturn.</p>
+      <div class="stress-btn-row" id="stressBtnRow">
+        <div class="stress-btn" data-stress="gfc">2008 Financial Crisis</div>
+        <div class="stress-btn" data-stress="dotcom">2000 Dot-Com Crash</div>
+        <div class="stress-btn" data-stress="covid">2020 COVID Shock</div>
+        <div class="stress-btn" data-stress="stagflation">1973–74 Stagflation</div>
+        <div class="stress-btn" data-stress="hikes2022">2022 Rate-Hike Slide</div>
+      </div>
+      <div class="stress-result" id="stressResult">
+        <div class="stress-summary" id="stressSummary"></div>
+        <div class="chart-wrap" id="stressChart"></div>
+        <div class="disclaimer-inline" id="stressNote"></div>
+      </div>
+
+      <div class="whatif-panel">
+        <div class="whatif-title mono">Quick What-If — adjust and watch the outcomes above update</div>
+        <div class="whatif-row">
+          <label>Monthly Contribution: <span class="mono" id="whatifMonthlyReadout">$0</span></label>
+          <input type="range" id="whatifMonthly" min="0" max="3000" step="25">
+        </div>
+        <div class="whatif-row">
+          <label>Years to Goal: <span class="mono" id="whatifYearsReadout">0</span></label>
+          <input type="range" id="whatifYears" min="0" max="35" step="1">
+        </div>
+      </div>
+
+      <div class="export-row">
+        <button class="btn" onclick="exportPrint()">Export Report (Print / PDF)</button>
+        <button class="btn" onclick="exportCSV()">Export Data (CSV)</button>
+      </div>
+
+      <div class="disclaimer-inline">Simulated using 500 randomized annual return paths per asset class (a simplified Monte Carlo model — it does not model correlation between asset classes, sequence-of-returns risk beyond simple compounding, or fees). Bond and cash assumptions are anchored to real reference rates below; equity assumptions use long-run historical averages. This remains a hypothetical mathematical exercise, not a promise, guarantee, or forecast of actual performance, which will vary and may include loss of principal.</div>
+    </section>
+
+    <!-- EXHIBIT I': WHY THIS STRUCTURE (explanation layer, always visible) -->
+    <section>
+      <div class="section-head">
+        <div class="exhibit-mark mono">RATIONALE</div>
+        <h2>Why This Structure</h2>
+      </div>
+      <div class="note-box" id="explanationBox" style="font-size:14.5px;"></div>
+    </section>
+
+    <!-- EXHIBIT E: FUND-CATEGORY DETAIL (Yearly) -->
+    <section>
+      <div class="section-head">
+        <div class="exhibit-mark mono">EXHIBIT E</div>
+        <h2>Fund-Category Detail</h2>
+      </div>
+      <p class="section-sub">A closer breakdown of each asset class into the sub-categories a diversified index approach is typically built from.</p>
+      <div class="gated" id="fundDetailUnlocked"><div id="fundDetailBody"></div></div>
+      <div class="locked-card" id="fundDetailLocked">
+        <div class="locked-tag">Monthly & Yearly Members Only</div>
+        <h4 class="serif">Sub-category breakdown is reserved for paying members</h4>
+        <p>See each asset class split into large-cap vs. small-cap, developed vs. emerging markets, and short vs. aggregate bond exposure.</p>
+        <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Membership Terms</button>
+      </div>
+    </section>
+
+    <!-- EXHIBIT F: REBALANCING SCHEDULE (Yearly) -->
+    <section>
+      <div class="section-head">
+        <div class="exhibit-mark mono">EXHIBIT F</div>
+        <h2>Rebalancing Schedule</h2>
+      </div>
+      <p class="section-sub">How the target allocation is expected to shift as the target date approaches, with a suggested review cadence.</p>
+      <div class="gated" id="rebalUnlocked">
+        <table class="rebal-table" id="rebalTable"></table>
+        <div class="next-review" id="nextReview"></div>
+      </div>
+      <div class="locked-card" id="rebalLocked">
+        <div class="locked-tag">Yearly Members Only</div>
+        <h4 class="serif">The forward glide-path schedule is reserved for the Yearly retainer</h4>
+        <p>See how your allocation is expected to shift year over year, and when your next review is due.</p>
+        <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Yearly Terms</button>
+      </div>
+    </section>
+
+    <!-- EXHIBIT K: RETIREMENT WITHDRAWAL MODELING (Yearly) -->
+    <section>
+      <div class="section-head">
+        <div class="exhibit-mark mono">EXHIBIT K</div>
+        <h2>Retirement Withdrawal Modeling</h2>
+      </div>
+      <p class="section-sub">Model drawing down this brief's projected balance over a retirement span, at a chosen withdrawal rate, across the same 500 simulated market paths — this estimates a probability of running out of money, not a guarantee either way.</p>
+      <div class="gated" id="withdrawUnlocked">
+        <div class="withdraw-grid">
+          <div class="field">
+            <label>Starting Balance</label>
+            <div class="money-input"><input type="number" id="withdrawBalance" value="0" min="0" step="1000"></div>
+            <div class="field-hint">Defaults to this brief's simulated median balance — override to test any figure.</div>
+          </div>
+          <div class="field">
+            <label>Annual Withdrawal Rate</label>
+            <input type="range" id="withdrawRate" min="2" max="8" step="0.5" value="4">
+            <div class="years-readout mono" id="withdrawRateReadout">4.0%</div>
+          </div>
+          <div class="field">
+            <label>Years in Retirement</label>
+            <input type="range" id="withdrawYears" min="10" max="40" step="1" value="30">
+            <div class="years-readout mono" id="withdrawYearsReadout">30 yrs</div>
+          </div>
+        </div>
+        <button class="btn btn-solid" onclick="runWithdrawalModel()">Run Withdrawal Model</button>
+        <div class="withdraw-result-row" id="withdrawResults" style="display:none;">
+          <div class="withdraw-cell"><span>Starting Annual Withdrawal</span><b id="wdAnnual">$0</b></div>
+          <div class="withdraw-cell risk"><span>Chance of Depletion Before End of Span</span><b id="wdDepletionPct">0%</b></div>
+          <div class="withdraw-cell"><span>Median Balance at End of Span</span><b id="wdMedianEnd">$0</b></div>
+        </div>
+        <div class="chart-wrap" id="withdrawChart"></div>
+        <div class="disclaimer-inline">Uses the same asset-class return assumptions as Exhibit D, applied in reverse with annual withdrawals instead of contributions, and inflates the withdrawal amount each year by the reference CPI figure above. This is a simplified model — it does not account for taxes, required minimum distributions, Social Security, or changing spending needs in retirement.</div>
+      </div>
+      <div class="locked-card" id="withdrawLocked">
+        <div class="locked-tag">Yearly Members Only</div>
+        <h4 class="serif">Withdrawal modeling is reserved for the Yearly retainer</h4>
+        <p>Test how long this brief's projected balance would likely last once you start drawing it down.</p>
+        <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Yearly Terms</button>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ============ SAVED BRIEF HISTORY (Monthly / Yearly) ============ -->
+  <section id="historySection">
+    <div class="section-head">
+      <div class="exhibit-mark mono">EXHIBIT G</div>
+      <h2>Saved Brief History</h2>
+    </div>
+    <p class="section-sub" id="historySub">Every brief you draft is kept here for future reference — tied to your signed-in account, so it follows you, not just this browser. Requires being signed in on Monthly or Yearly.</p>
+    <div class="gated" id="historyUnlocked">
+      <div class="hist-list" id="histList"></div>
+      <button class="mini-btn" id="clearHistoryBtn" onclick="clearHistory()">Clear Saved History</button>
+
+      <div class="section-head" style="margin-top:36px;">
+        <div class="exhibit-mark mono">COMPARE</div>
+        <h2 style="font-size:22px;">Side-by-Side Strategy Comparison</h2>
+      </div>
+      <p class="section-sub">Pick any two saved briefs to compare their structure and simulated outcomes directly.</p>
+      <div class="compare-picker">
+        <select id="compareSelectA"></select>
+        <select id="compareSelectB"></select>
+        <button class="btn" onclick="renderComparison()">Compare</button>
+      </div>
+      <div class="compare-table-wrap"><table class="compare-table" id="compareTable" style="display:none;"></table></div>
+    </div>
+    <div class="locked-card" id="historyLocked">
+      <div class="locked-tag">Monthly & Yearly Members Only</div>
+      <h4 class="serif">Brief history is reserved for paying members</h4>
+      <p>Every brief you draft on the Monthly or Yearly plan is saved automatically, so you can revisit or reload it later without starting over.</p>
+      <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Membership Terms</button>
+    </div>
+  </section>
+
+  <!-- ============ MULTI-GOAL DASHBOARD (Yearly) ============ -->
+  <section id="dashboardSection">
+    <div class="section-head">
+      <div class="exhibit-mark mono">EXHIBIT H</div>
+      <h2>Multi-Goal Dashboard</h2>
+    </div>
+    <p class="section-sub">Track every objective — education, retirement, a home — side by side, each drafted and reviewed independently.</p>
+    <div class="gated" id="dashUnlocked">
+      <div class="dash-grid" id="dashGrid"></div>
+
+      <div class="section-head" style="margin-top:36px;">
+        <div class="exhibit-mark mono">MILESTONES</div>
+        <h2 style="font-size:22px;">Progress Milestones</h2>
+      </div>
+      <div class="milestone-grid" id="milestoneGrid"></div>
+
+      <div class="section-head" style="margin-top:36px;">
+        <div class="exhibit-mark mono">AI REVIEW</div>
+        <h2 style="font-size:22px;">AI-Generated Quarterly Review</h2>
+      </div>
+      <p class="section-sub">Have the desk's AI assistant write a short narrative review across every goal on your dashboard — plain-language, referencing your actual numbers, and just as bound by the educational-only disclaimers as the rest of this tool.</p>
+      <button class="btn btn-solid" onclick="generateQuarterlyReview()" id="reviewBtn">Generate Quarterly Review</button>
+      <div class="ai-review-box" id="reviewBox" style="display:none;"></div>
+    </div>
+    <div class="locked-card" id="dashLocked">
+      <div class="locked-tag">Yearly Members Only</div>
+      <h4 class="serif">The multi-goal dashboard is reserved for the Yearly retainer</h4>
+      <p>Draft and track more than one objective at once — your desk keeps each goal's latest brief in a single view.</p>
+      <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Yearly Terms</button>
+    </div>
+  </section>
+
+  <!-- ============ AI ADVISOR (Monthly / Yearly) ============ -->
+  <section id="aiAdvisorSection">
+    <div class="section-head">
+      <div class="exhibit-mark mono">EXHIBIT L</div>
+      <h2>Ask the AI Advisor</h2>
+    </div>
+    <p class="section-sub">Ask questions about your drafted brief in plain language. This is a conversational layer over the same educational-only tool — not a licensed advisor, and it doesn't see anything about you beyond the brief you drafted above.</p>
+    <div class="gated" id="aiAdvisorUnlocked">
+      <div class="ai-suggest-row">
+        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">Why so much in bonds?</div>
+        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">What if I retire 5 years earlier?</div>
+        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">Is my risk score too aggressive?</div>
+        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">How does inflation affect this plan?</div>
+      </div>
+      <div class="ai-chat-wrap" id="aiChatWrap">
+        <div class="ai-msg">
+          <div class="who">Advisor</div>
+          <p>Draft a brief above, then ask me anything about it — allocation, risk score, the simulation ranges, or general planning concepts.</p>
+        </div>
+      </div>
+      <div class="ai-input-row">
+        <input type="text" id="aiChatInput" placeholder="Ask a question about your brief…" onkeydown="if(event.key==='Enter') sendAdvisorMessage()">
+        <button class="btn btn-solid" onclick="sendAdvisorMessage()" id="aiSendBtn">Ask</button>
+      </div>
+      <div class="disclaimer-inline" style="margin-top:12px;">AI-generated responses are educational only, drawn from general planning principles and your drafted brief — not personalized investment, legal, or tax advice, and not reviewed by a human before being shown to you. Verify anything material with a licensed professional.</div>
+    </div>
+    <div class="locked-card" id="aiAdvisorLocked">
+      <div class="locked-tag">Monthly & Yearly Members Only</div>
+      <h4 class="serif">The AI Advisor is reserved for paying members</h4>
+      <p>Ask follow-up questions about your drafted brief in plain language, on the Monthly or Yearly plan.</p>
+      <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Membership Terms</button>
+    </div>
+  </section>
+
+  <!-- ============ GETTING STARTED / TUTORIAL ============ -->
+  <section id="tutorial">
+    <div class="section-head">
+      <div class="exhibit-mark mono">GUIDE</div>
+      <h2>Opening Accounts & Placing Trades</h2>
+    </div>
+    <p class="section-sub">A general walkthrough of how each account type is typically opened, and how a first trade gets placed once it's funded. Exact screens vary by provider — this covers the common pattern, not instructions for one specific broker.</p>
+
+    <div class="faq-list">
+      <details class="faq-item" open>
+        <summary>Opening a Taxable Brokerage Account</summary>
+        <ol class="tutorial-steps">
+          <li>Pick a broker — <strong>Fidelity, Charles Schwab, and Vanguard</strong> are common examples. Most charge no account fees and no commission on stock/ETF trades.</li>
+          <li>Go to the broker's site and choose "Open an Account," then select <strong>Individual Brokerage Account</strong>.</li>
+          <li>Provide identifying information (SSN, address, employment) — required by federal law for every brokerage, not specific to one provider.</li>
+          <li>Link a bank account, usually via routing/account number or instant login verification.</li>
+          <li>Transfer funds by ACH — typically free, usually settles in 1–3 business days.</li>
+          <li>Once the transfer clears, the account is ready to place trades.</li>
+        </ol>
+      </details>
+
+      <details class="faq-item">
+        <summary>Opening a Roth or Traditional IRA</summary>
+        <ol class="tutorial-steps">
+          <li>Most brokers from the section above also offer IRAs — look for "Retirement Account" during signup instead of "Brokerage Account."</li>
+          <li>Choose <strong>Roth</strong> or <strong>Traditional</strong>. Roth contributions have income eligibility limits; Traditional does not, but withdrawals are taxed differently — a tax professional can confirm which suits your situation.</li>
+          <li>Fund it via bank transfer, or roll over an existing 401(k) or IRA from a previous employer.</li>
+          <li>Contribution limits are set annually by the IRS and change over time — check the current year's limit before contributing, rather than assuming a prior year's figure still applies.</li>
+        </ol>
+      </details>
+
+      <details class="faq-item">
+        <summary>Opening a 529 College Savings Plan</summary>
+        <ol class="tutorial-steps">
+          <li>529 plans are state-sponsored, but most states let you use <strong>any</strong> state's plan — not only your own, though your home state may offer a tax deduction for using its plan specifically.</li>
+          <li>Compare plans (fees, investment options, state tax benefits) before choosing — plans differ meaningfully by state.</li>
+          <li>Open directly through the state plan's own site, or through a broker like Fidelity or Vanguard that administers specific state plans.</li>
+          <li>Choose an investment option — many plans offer an age-based portfolio that automatically shifts more conservative as the beneficiary nears college age, similar in spirit to the target-date funds in Exhibit E.</li>
+          <li>Name a beneficiary (the future student) — this can typically be changed later if plans change.</li>
+          <li>Fund it, and set up recurring contributions if desired.</li>
+        </ol>
+      </details>
+
+      <details class="faq-item">
+        <summary>Opening a High-Yield Savings Account</summary>
+        <ol class="tutorial-steps">
+          <li>Compare rates at online banks — <strong>Marcus by Goldman Sachs, Ally, Capital One 360, and Discover</strong> are common examples with no physical branch overhead, which is usually why their rates run higher than traditional banks.</li>
+          <li>Apply online — typically just identity verification, often with no minimum balance requirement.</li>
+          <li>Link and fund it from an external bank account, same as a brokerage transfer.</li>
+          <li>Funds are typically FDIC-insured up to $250,000 per depositor, per bank — the same federal protection as a traditional checking account.</li>
+        </ol>
+      </details>
+
+      <details class="faq-item">
+        <summary>Placing Your First Trade</summary>
+        <ol class="tutorial-steps">
+          <li>Log into the funded account and find the "Trade" or "Buy/Sell" screen.</li>
+          <li>Search by <strong>ticker symbol</strong>, not company name — e.g. "VOO," not "Vanguard S&P 500."</li>
+          <li>Choose an order type: a <strong>Market order</strong> buys immediately at the current price; a <strong>Limit order</strong> only executes at a price you set or better.</li>
+          <li>Enter the amount — either a number of shares, or a dollar amount if the broker supports fractional shares (see Exhibit E for more on this).</li>
+          <li>Review the order summary, then confirm and submit.</li>
+          <li>The position usually appears in the account immediately, though the trade formally settles within 1–2 business days.</li>
+        </ol>
+      </details>
+    </div>
+
+    <div class="disclaimer-inline">This is a general description of a common process, not instructions endorsed by or affiliated with any broker named above, and not a recommendation to open an account with any of them specifically. Exact steps, fees, and screens vary by provider and change over time — always follow your chosen provider's own current instructions.</div>
+  </section>
+
+  <!-- ============ PRICE LOOKUP ============ -->
+  <section id="priceLookup">
+    <div class="section-head">
+      <div class="exhibit-mark mono">PRICE LOOKUP</div>
+      <h2>Current Ticker Price</h2>
+    </div>
+    <p class="section-sub">Look up any ticker's actual current price, pulled live. This shows what something costs right now — it is not, and does not attempt to be, a judgment on whether that price is a good buy. Whether a price represents good value depends on earnings, growth, and dozens of other factors this tool does not evaluate.</p>
+
+    <div class="price-key-notice" id="priceKeyNotice">
+      This widget calls two free APIs directly from your browser: <strong>Finnhub</strong> for the current price, and <strong>Twelve Data</strong> for the 1Y/2Y history below (Finnhub's free tier no longer includes historical charts for US stocks). Get free keys at <a href="https://finnhub.io/register" target="_blank" rel="noopener" style="color:var(--brass);">finnhub.io/register</a> and <a href="https://twelvedata.com/pricing" target="_blank" rel="noopener" style="color:var(--brass);">twelvedata.com/pricing</a> (both free, no card required), then paste them into the <code>FINNHUB_API_KEY</code> and <code>TWELVEDATA_API_KEY</code> constants near the bottom of this file.
+    </div>
+
+    <div class="category-block">
+      <div class="category-label">Sector ETFs</div>
+      <div class="category-chips">
+        <div class="category-chip" onclick="quickLookup('XLK')">XLK · Technology</div>
+        <div class="category-chip" onclick="quickLookup('XLF')">XLF · Financials</div>
+        <div class="category-chip" onclick="quickLookup('XLE')">XLE · Energy</div>
+        <div class="category-chip" onclick="quickLookup('XLV')">XLV · Health Care</div>
+        <div class="category-chip" onclick="quickLookup('XLY')">XLY · Consumer Discretionary</div>
+        <div class="category-chip" onclick="quickLookup('XLP')">XLP · Consumer Staples</div>
+        <div class="category-chip" onclick="quickLookup('XLI')">XLI · Industrials</div>
+        <div class="category-chip" onclick="quickLookup('XLU')">XLU · Utilities</div>
+      </div>
+    </div>
+
+    <div class="category-block">
+      <div class="category-label">International ETFs</div>
+      <div class="category-chips">
+        <div class="category-chip" onclick="quickLookup('VXUS')">VXUS · Total International</div>
+        <div class="category-chip" onclick="quickLookup('VEA')">VEA · Developed Markets</div>
+        <div class="category-chip" onclick="quickLookup('VWO')">VWO · Emerging Markets</div>
+        <div class="category-chip" onclick="quickLookup('IEFA')">IEFA · Core MSCI EAFE</div>
+        <div class="category-chip" onclick="quickLookup('EFA')">EFA · MSCI EAFE</div>
+      </div>
+    </div>
+
+    <div class="category-block">
+      <div class="category-label">Target-Date ("Year") Funds</div>
+      <div class="category-chips">
+        <div class="category-chip" onclick="quickLookup('VTHRX')">VTHRX · Target 2030</div>
+        <div class="category-chip" onclick="quickLookup('VTIVX')">VTIVX · Target 2040</div>
+        <div class="category-chip" onclick="quickLookup('VFORX')">VFORX · Target 2045</div>
+        <div class="category-chip" onclick="quickLookup('VFIFX')">VFIFX · Target 2050</div>
+        <div class="category-chip" onclick="quickLookup('VTTSX')">VTTSX · Target 2060</div>
+      </div>
+      <div class="field-hint" style="margin-top:10px;">These are mutual funds, not ETFs — they price once per day after market close, not intraday like the categories above.</div>
+    </div>
+
+    <div class="price-lookup-row">
+      <input type="text" id="tickerInput" placeholder="e.g. TSLA, AAPL, VOO" maxlength="10" onkeydown="if(event.key==='Enter') lookupPrice()">
+      <button class="btn btn-solid" onclick="lookupPrice()" id="lookupBtn">Look Up Price</button>
+    </div>
+
+    <div class="price-error" id="priceError"></div>
+
+    <div class="price-card" id="priceCard">
+      <div class="price-card-head">
+        <div class="price-card-symbol" id="priceSymbol">—</div>
+        <div style="text-align:right;">
+          <div class="price-card-price" id="priceValue">$0.00</div>
+          <div class="price-card-change" id="priceChange">—</div>
+        </div>
+      </div>
+      <div class="price-stat-grid">
+        <div class="price-stat"><div class="label">Day High</div><div class="val" id="priceHigh">—</div></div>
+        <div class="price-stat"><div class="label">Day Low</div><div class="val" id="priceLow">—</div></div>
+        <div class="price-stat"><div class="label">Previous Close</div><div class="val" id="priceClose">—</div></div>
+        <div class="price-stat"><div class="label">Retrieved</div><div class="val" id="priceTime">—</div></div>
+      </div>
+
+      <div class="return-tabs">
+        <div class="return-tab active" data-span="1y" onclick="showReturnSpan('1y')">1-Year Return</div>
+        <div class="return-tab" data-span="2y" onclick="showReturnSpan('2y')">2-Year Return</div>
+      </div>
+      <div class="return-pct" id="returnPct">—</div>
+      <div class="return-chart-wrap visible" id="returnChart1y"></div>
+      <div class="return-chart-wrap" id="returnChart2y"></div>
+      <div class="price-error" id="returnError" style="margin-top:12px;"></div>
+    </div>
+
+    <div class="disclaimer-inline">Price and historical return data are factual and informational only — not a recommendation to buy, sell, or hold. Past returns shown here are historical fact, not an indication of future performance. This tool does not evaluate whether a price is high, low, or fair relative to the underlying business.</div>
+  </section>
+
+  <!-- ============ FAQ ============ -->
+  <section id="faq">
+    <div class="section-head">
+      <div class="exhibit-mark mono">FAQ</div>
+      <h2>Common Questions</h2>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item">
+        <summary>Is this real financial advice?</summary>
+        <p>No. Kinlgali Investing is an education-only planning tool, not a registered investment adviser. Every brief comes from general principles, not your full financial picture — see the Engagement Terms for the full disclosure.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Is my card information safe during checkout?</summary>
+        <p>This is a prototype — no real charge is ever made, and no card number, expiry, or CVC is stored or transmitted anywhere, even locally. The fields are cleared the instant you submit the form.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Can I cancel my trial before being charged?</summary>
+        <p>That's how it's designed to work on a live version of this product — cancel anytime during the 7-day (Monthly) or 1-month (Yearly) trial window and you won't be billed. This prototype doesn't enforce real billing dates.</p>
+      </details>
+      <details class="faq-item">
+        <summary>What happens to my saved briefs if I downgrade to Weekly?</summary>
+        <p>Nothing is deleted. Weekly just stops showing Exhibit G and stops saving new briefs while you're on it — your existing history reappears the moment you're back on Monthly or Yearly.</p>
+      </details>
+      <details class="faq-item">
+        <summary>Which specific stocks should I buy?</summary>
+        <p>None recommended by name — on purpose. Exhibit C and E point to asset classes and specific low-cost index fund tickers instead of individual stocks, since single-stock picks carry uncompensated company-specific risk.</p>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ PRICING ============ -->
+  <section id="pricing">
+    <div class="section-head">
+      <div class="exhibit-mark mono">TERMS</div>
+      <h2>Continued Counsel</h2>
+    </div>
+    <p class="section-sub">Weekly stays free forever with the basics. Monthly and Yearly open with a short trial, then bill automatically — cancel anytime before the trial ends and you won't be charged.</p>
+
+    <div class="promo-banner" id="promoBanner">
+      <div class="promo-text"><strong>Founding Member Offer</strong> — the first 500 customers get 50% off their first payment on Monthly or Yearly.</div>
+      <div class="promo-count mono" id="promoCount">Checking availability…</div>
+    </div>
+
+    <div class="tier-grid" id="tierGrid">
+      <div class="tier" data-plan="weekly">
+        <div class="tier-name mono">Weekly</div>
+        <div class="tier-price serif">Free <span>/ forever</span></div>
+        <div class="tier-save">Bare minimum, no cost</div>
+        <ul>
+          <li>Strategy drafting tool (Exhibits A–D)</li>
+          <li>Historical Stress Tests</li>
+          <li>10 free drafts every 5 hours</li>
+          <li>No history, dashboard, fund detail, or AI Advisor</li>
+        </ul>
+        <button class="btn btn-block" onclick="handlePlanSelect('weekly')">Start Free</button>
+      </div>
+
+      <div class="tier" data-plan="monthly">
+        <div class="tier-name mono">Monthly</div>
+        <div class="tier-price serif">$14.99 <span>/ mo</span></div>
+        <div class="tier-save mono">7-day free trial included</div>
+        <ul>
+          <li>Everything in Weekly</li>
+          <li>Saved Brief History — every brief kept for later</li>
+          <li>Fund-Category Detail breakdown</li>
+          <li>AI Advisor — ask questions about your brief</li>
+          <li>Card required — billed after 7 days</li>
+        </ul>
+        <button class="btn btn-block" onclick="handlePlanSelect('monthly')">Start 7-Day Trial</button>
+      </div>
+
+      <div class="tier featured" data-plan="yearly">
+        <div class="tier-badge">Preferred</div>
+        <div class="tier-name mono">Yearly</div>
+        <div class="tier-price serif">$214.99 <span>/ yr</span></div>
+        <div class="tier-save mono">1-month free trial included</div>
+        <ul>
+          <li>Everything in Monthly</li>
+          <li>Multi-Goal Dashboard, Milestones & AI Quarterly Review</li>
+          <li>Rebalancing Schedule & review reminders</li>
+          <li>Retirement Withdrawal Modeling</li>
+          <li>Annual goal re-drafting session</li>
+          <li>Card required — billed after 1 month</li>
+        </ul>
+        <button class="btn btn-solid btn-block" onclick="handlePlanSelect('yearly')">Start 1-Month Trial</button>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="footer-inner">
+      <div class="footer-nav">
+        <a onclick="document.getElementById('about').scrollIntoView({behavior:'smooth'})">About</a>
+        <a onclick="document.getElementById('faq').scrollIntoView({behavior:'smooth'})">FAQ</a>
+        <a onclick="expandFooterLegalAndScroll()">Terms</a>
+        <a onclick="expandFooterLegalAndScroll()">Privacy</a>
+        <a href="mailto:concierge@example.com">Contact</a>
+      </div>
+      <div class="footer-legal" id="footerLegal">
+        <strong>Disclosure:</strong> Kinlgali Investing is a planning and education tool, not a registered investment adviser, broker-dealer, bank, insurance agency, law firm, or accounting practice, and no advisory or fiduciary relationship is formed by its use. Account and allocation suggestions are generated from general planning principles and the inputs supplied by the user; they are not personalized recommendations and do not consider a user's complete financial circumstances. All investing carries risk, including loss of principal, and tax treatment of any account varies by individual circumstance and jurisdiction. Users are solely responsible for any decision to open an account, contribute capital, or purchase a security, and are encouraged to consult a licensed financial advisor, tax professional, or attorney before acting. Kinlgali Investing and its operators disclaim all liability for losses arising from use of, or reliance upon, this tool. <strong>On data:</strong> drafted briefs you save are stored to your account only, are never sold, and are visible only to you; billing fields entered at checkout are never stored or transmitted anywhere, even locally, since this is a prototype with no real payment processor behind it.
+      </div>
+      <button class="footer-toggle" id="footerToggle" onclick="toggleFooterLegal()">Read Full Disclosure ↓</button>
+      <div class="footer-bottom">
+        <div>KINLGALI INVESTING — EDUCATIONAL USE ONLY</div>
+        <div>NOT FDIC INSURED · NOT A DEPOSIT · MAY LOSE VALUE</div>
+      </div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+// ---------- Modal gating ----------
+const ackBox = document.getElementById('ackBox');
+const enterBtn = document.getElementById('enterBtn');
+ackBox.addEventListener('change', () => { enterBtn.disabled = !ackBox.checked; });
+enterBtn.addEventListener('click', () => {
+  document.getElementById('modalVeil').style.display = 'none';
+  document.getElementById('app').classList.add('visible');
+});
+
+// ---------- Years slider ----------
+const yearsSlider = document.getElementById('yearsSlider');
+const yearsReadout = document.getElementById('yearsReadout');
+yearsSlider.addEventListener('input', () => {
+  const v = parseInt(yearsSlider.value);
+  yearsReadout.textContent = v === 0 ? '<1 yr' : (v + (v===1?' yr':' yrs'));
+});
+
+// ---------- Risk selector ----------
+let currentRisk = 'balanced';
+let currentRiskScore = 50;
+let currentUser = null;
+let pendingPlan = null;
+document.querySelectorAll('#riskRow .risk-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('#riskRow .risk-btn').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    currentRisk = btn.dataset.risk;
+  });
+});
+
+let currentFundPrefs = new Set(['none']);
+document.querySelectorAll('#fundPrefRow .risk-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    const pref = btn.dataset.pref;
+    const noneBtn = document.querySelector('#fundPrefRow [data-pref="none"]');
+
+    if(pref === 'none'){
+      currentFundPrefs = new Set(['none']);
+      document.querySelectorAll('#fundPrefRow .risk-btn').forEach(b=>b.classList.toggle('active', b.dataset.pref==='none'));
+      return;
+    }
+
+    currentFundPrefs.delete('none');
+    noneBtn.classList.remove('active');
+
+    if(currentFundPrefs.has(pref)){
+      currentFundPrefs.delete(pref);
+      btn.classList.remove('active');
+    } else {
+      currentFundPrefs.add(pref);
+      btn.classList.add('active');
+    }
+
+    if(currentFundPrefs.size === 0){
+      currentFundPrefs.add('none');
+      noneBtn.classList.add('active');
+    }
+  });
+});
+
+// ---------- Money formatting ----------
+const fmt = n => '$' + Math.round(n).toLocaleString('en-US');
+
+// ---------- Account logic ----------
+function getAccounts(goal, years){
+  const acc = [];
+  if(goal==='education'){
+    acc.push({tag:'Primary', name:'529 College Savings Plan', desc:'Tax-advantaged, state-sponsored account earmarked for qualified education expenses; earnings grow free of federal tax when used for schooling costs.'});
+    if(years<=3){ acc.push({tag:'Near-Term', name:'High-Yield Savings / CD Ladder', desc:'For the portion of the goal inside a three-year window, capital preservation takes priority over growth.'}); }
+    acc.push({tag:'Alternative', name:'Custodial Account (UTMA/UGMA)', desc:"More flexible than a 529 but becomes the child's asset at majority and can reduce financial-aid eligibility — weigh carefully."});
+  } else if(goal==='retirement'){
+    acc.push({tag:'Primary', name:'Employer 401(k) / 403(b)', desc:'Prioritize contributing at least enough to capture any employer match in full — this is an immediate, guaranteed return on that portion.'});
+    acc.push({tag:'Primary', name:'Roth or Traditional IRA', desc:'Choice between the two depends on your current versus expected future tax bracket; a tax professional can confirm which suits your situation.'});
+    acc.push({tag:'If Eligible', name:'Health Savings Account (HSA)', desc:'Available if enrolled in a qualifying high-deductible health plan; offers a triple tax advantage and can double as a retirement vehicle after age 65.'});
+  } else if(goal==='home'){
+    acc.push({tag:'Primary', name:'High-Yield Savings Account', desc:'The default holding vehicle for a down payment inside a five-year window, where preserving principal outweighs growth potential.'});
+    acc.push({tag:'Structured', name:'CD Ladder', desc:'Certificates of deposit timed to mature near your target purchase date can lock in a fixed rate on a portion of the funds.'});
+    if(years>5){ acc.push({tag:'If Time Allows', name:'Taxable Brokerage Account', desc:'With more than five years of runway, a modest diversified allocation may be considered for a portion of the funds.'}); }
+  } else if(goal==='emergency'){
+    acc.push({tag:'Primary', name:'High-Yield Savings Account', desc:'Emergency reserves are held here — not invested — regardless of stated risk comfort, so the funds are available in full, on short notice, without exposure to market timing.'});
+    acc.push({tag:'Alternative', name:'Money Market Account', desc:'A comparable option offering liquidity and modest interest, often with check-writing or debit access.'});
+  } else if(goal==='wealth'){
+    acc.push({tag:'Primary', name:'Taxable Brokerage Account', desc:'The standard vehicle for open-ended, flexible investing with no withdrawal restrictions.'});
+    acc.push({tag:'Tax-Advantaged', name:'Roth IRA', desc:'If income-eligible, this shelters long-run growth from future taxation; contribution limits apply annually.'});
+    acc.push({tag:'Tax-Advantaged', name:'Traditional IRA', desc:'An alternative or supplement to the Roth, offering an upfront deduction depending on income and workplace coverage.'});
+  } else if(goal==='major'){
+    acc.push({tag:'Primary', name:'High-Yield Savings Account', desc:'Suited to purchases inside a three-to-five-year window where the date is largely fixed and principal must be protected.'});
+    if(years>5){ acc.push({tag:'If Time Allows', name:'Taxable Brokerage Account', desc:'Additional runway allows a portion of the funds to be considered for modest diversified growth exposure.'}); }
+  } else {
+    acc.push({tag:'General', name:'High-Yield Savings Account', desc:'A prudent default holding vehicle while a more specific purpose is defined.'});
+    acc.push({tag:'General', name:'Taxable Brokerage Account', desc:'Offers flexibility to pursue growth once the purpose and timeline of these funds are clarified.'});
+  }
+  return acc;
+}
+
+function getAcctNote(goal){
+  const notes = {
+    education: 'Note: 529 plan rules, state tax deductions, and qualified-expense definitions vary by state of residence — confirm current details with the plan administrator or a tax professional before opening an account.',
+    retirement: 'Note: Contribution limits for 401(k) and IRA accounts are set annually and adjusted for inflation; confirm current limits before finalizing contribution amounts.',
+    home: 'Note: First-time buyer programs and certain retirement-account withdrawal exceptions may apply to a home purchase — a tax professional can confirm eligibility.',
+    emergency: 'Note: A commonly cited reserve target is three to six months of essential expenses, though the right figure depends on income stability and household circumstances.',
+    wealth: 'Note: Account selection here depends heavily on income level, filing status, and existing retirement coverage — figures above are general starting points, not a final determination.',
+    major: 'Note: Where the purchase date is flexible rather than fixed, the allocation below may lean further toward growth; where it is fixed, capital preservation should take priority.',
+    other: 'Note: Defining a firmer purpose and date for these funds will allow a materially more precise structure to be drafted.'
+  };
+  return notes[goal] || notes.other;
+}
+
+// ---------- Allocation logic ----------
+/* ---------- Real-world reference market data ----------
+   Dated snapshot, not a live feed — a static file can't safely
+   poll a live API long-term. Sourced July 2, 2026:
+   - 10-Year Treasury yield ~4.48% (CNBC/FRED)
+   - CPI inflation, trailing 12mo ~4.2% (BLS, May 2026 release) */
+const MARKET_DATA = {
+  asOf: 'July 2, 2026',
+  treasury10y: 4.48,
+  cpiYoY: 4.2,
+  usEquity:  {mean:9.5, sd:16.0},
+  intlEquity:{mean:7.5, sd:17.0},
+  bonds:     {mean:4.48, sd:6.0},   // anchored to current 10Y Treasury yield
+  cash:      {mean:4.0,  sd:0.5}    // approximate current HYSA range
+};
+
+function getBaseAllocation(years){
+  if(years<=2) return {cash:80, bonds:15, usEq:5, intlEq:0};
+  if(years<=5) return {cash:30, bonds:35, usEq:25, intlEq:10};
+  if(years<=10) return {cash:10, bonds:25, usEq:45, intlEq:20};
+  return {cash:5, bonds:10, usEq:60, intlEq:25};
+}
+
+/* ---------- Risk Scoring Engine ----------
+   Combines time horizon, age, and stated comfort into one
+   0-100 score, rather than letting the comfort buttons alone
+   decide the allocation. */
+function computeRiskScore(age, years, riskKey){
+  const horizonScore = Math.max(0, Math.min(100, (years/25)*100));
+  const ageScore = Math.max(0, Math.min(100, 100 - (age-20)*1.5));
+  const comfortScore = {conservative:20, balanced:50, growth:75, aggressive:95}[riskKey] ?? 50;
+  const score = Math.round(0.4*horizonScore + 0.3*ageScore + 0.3*comfortScore);
+  return Math.max(0, Math.min(100, score));
+}
+function riskTier(score){
+  if(score<30) return 'Conservative';
+  if(score<55) return 'Balanced';
+  if(score<80) return 'Growth-Oriented';
+  return 'Aggressive';
+}
+
+function applyRiskTilt(base, score, years){
+  let tilt = (score-50)/50*15; // score of 50 = no shift; ±15 points of equity at the extremes
+  let a = {...base};
+  let equity = a.usEq + a.intlEq;
+  let defensive = a.cash + a.bonds;
+  let newEquity = Math.max(0, Math.min(100, equity + tilt));
+  let delta = newEquity - equity;
+  if(equity>0){
+    a.usEq = a.usEq + delta * (a.usEq/equity);
+    a.intlEq = a.intlEq + delta * (a.intlEq/equity);
+  } else if(delta>0){
+    a.usEq += delta*0.7; a.intlEq += delta*0.3;
+  }
+  let newDefensive = defensive - delta;
+  if(defensive>0){
+    a.cash = a.cash * (newDefensive/defensive);
+    a.bonds = a.bonds * (newDefensive/defensive);
+  }
+  // capital-preservation floor for very short horizons regardless of risk score
+  if(years<=1){
+    a.cash = Math.max(a.cash, 70);
+    let remainder = 100 - a.cash;
+    let restSum = a.bonds + a.usEq + a.intlEq;
+    if(restSum>0){
+      a.bonds = a.bonds/restSum*remainder;
+      a.usEq = a.usEq/restSum*remainder;
+      a.intlEq = a.intlEq/restSum*remainder;
+    }
+  }
+  // normalize rounding to sum to 100
+  let sum = a.cash+a.bonds+a.usEq+a.intlEq;
+  a.cash = a.cash/sum*100; a.bonds = a.bonds/sum*100; a.usEq = a.usEq/sum*100; a.intlEq = a.intlEq/sum*100;
+  return a;
+}
+
+function renderAllocation(alloc){
+  const segs = [
+    {key:'usEq', label:'U.S. Equity Index', color:'var(--brass-fill)', text:'#22282F'},
+    {key:'intlEq', label:'International Equity Index', color:'var(--verdigris)', text:'#FFFFFF'},
+    {key:'bonds', label:'Bond / Fixed Income Index', color:'var(--stone)', text:'#FFFFFF'},
+    {key:'cash', label:'Cash · HYSA · Money Market', color:'var(--crimson)', text:'#FFFFFF'}
+  ];
+  const bar = document.getElementById('allocBar');
+  const legend = document.getElementById('allocLegend');
+  bar.innerHTML=''; legend.innerHTML='';
+  segs.forEach(s=>{
+    const pct = alloc[s.key];
+    if(pct<0.5) return;
+    const seg = document.createElement('div');
+    seg.className='alloc-seg';
+    seg.style.width = pct+'%';
+    seg.style.background = s.color;
+    seg.style.color = s.text;
+    seg.textContent = pct>=8 ? Math.round(pct)+'%' : '';
+    bar.appendChild(seg);
+
+    const li = document.createElement('div');
+    li.className='legend-item';
+    li.innerHTML = `<div class="legend-dot" style="background:${s.color}"></div>${s.label} — <span class="mono">${Math.round(pct)}%</span>`;
+    legend.appendChild(li);
+  });
+  return alloc;
+}
+
+// ---------- Monte Carlo simulation ----------
+// Box-Muller transform for normally-distributed random samples
+function randNormal(mean, sd){
+  let u=0, v=0;
+  while(u===0) u = Math.random();
+  while(v===0) v = Math.random();
+  const z = Math.sqrt(-2*Math.log(u)) * Math.cos(2*Math.PI*v);
+  return mean + z*sd;
+}
+
+function runMonteCarlo(alloc, lump, monthly, years, trials){
+  trials = trials || 500;
+  const simYears = Math.max(years, 1);
+  const equityUsFrac = alloc.usEq/100, equityIntlFrac = alloc.intlEq/100, bondsFrac = alloc.bonds/100, cashFrac = alloc.cash/100;
+  const annualContrib = monthly*12;
+
+  // yearlyPaths[year] = array of portfolio values across all trials at that year
+  const yearlyPaths = Array.from({length: simYears+1}, ()=>[]);
+
+  for(let t=0; t<trials; t++){
+    let value = lump;
+    yearlyPaths[0].push(value);
+    for(let y=1; y<=simYears; y++){
+      const rUS = randNormal(MARKET_DATA.usEquity.mean, MARKET_DATA.usEquity.sd)/100;
+      const rIntl = randNormal(MARKET_DATA.intlEquity.mean, MARKET_DATA.intlEquity.sd)/100;
+      const rBonds = randNormal(MARKET_DATA.bonds.mean, MARKET_DATA.bonds.sd)/100;
+      const rCash = randNormal(MARKET_DATA.cash.mean, MARKET_DATA.cash.sd)/100;
+      const portfolioReturn = equityUsFrac*rUS + equityIntlFrac*rIntl + bondsFrac*rBonds + cashFrac*rCash;
+      value = Math.max(0, value*(1+portfolioReturn) + annualContrib);
+      yearlyPaths[y].push(value);
+    }
+  }
+
+  function percentile(arr, p){
+    const sorted = [...arr].sort((a,b)=>a-b);
+    const idx = Math.min(sorted.length-1, Math.max(0, Math.floor(p/100*sorted.length)));
+    return sorted[idx];
+  }
+
+  const yearly = yearlyPaths.map((vals, y)=>({
+    year: y,
+    p5: percentile(vals,5), p25: percentile(vals,25), p50: percentile(vals,50),
+    p75: percentile(vals,75), p95: percentile(vals,95)
+  }));
+
+  const totalContrib = lump + annualContrib*simYears;
+  const final = yearly[yearly.length-1];
+
+  return {yearly, totalContrib, worst: final.p5, median: final.p50, best: final.p95};
+}
+
+function renderMonteCarloChart(sim, years, containerId){
+  const container = document.getElementById(containerId || 'monteCarloChart');
+  const W = 700, H = 320, padL = 64, padR = 20, padT = 20, padB = 36;
+  const chartW = W - padL - padR, chartH = H - padT - padB;
+  const maxVal = Math.max(...sim.yearly.map(y=>y.p95)) * 1.05 || 1;
+  const simYears = sim.yearly.length - 1;
+
+  const xFor = (y)=> padL + (simYears===0 ? 0 : (y/simYears)*chartW);
+  const yFor = (v)=> padT + chartH - (v/maxVal)*chartH;
+
+  function pathFor(key){
+    return sim.yearly.map((pt,i)=> `${i===0?'M':'L'} ${xFor(pt.year).toFixed(1)} ${yFor(pt[key]).toFixed(1)}`).join(' ');
+  }
+  function areaBetween(keyLow, keyHigh){
+    const top = sim.yearly.map(pt=> `${xFor(pt.year).toFixed(1)},${yFor(pt[keyHigh]).toFixed(1)}`).join(' L ');
+    const bottomPts = [...sim.yearly].reverse().map(pt=> `${xFor(pt.year).toFixed(1)},${yFor(pt[keyLow]).toFixed(1)}`).join(' L ');
+    return `M ${top} L ${bottomPts} Z`;
+  }
+
+  // gridlines + y-axis labels (4 bands)
+  let gridLines = '';
+  for(let i=0;i<=4;i++){
+    const v = maxVal*i/4;
+    const y = yFor(v);
+    gridLines += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="var(--hair)" stroke-width="1"/>`;
+    gridLines += `<text x="${padL-8}" y="${(y+4).toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)" text-anchor="end">${fmtShort(v)}</text>`;
+  }
+  // x-axis year labels
+  let xLabels = '';
+  const step = simYears>10 ? Math.ceil(simYears/6) : 1;
+  for(let y=0;y<=simYears;y+=step){
+    xLabels += `<text x="${xFor(y).toFixed(1)}" y="${H-14}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)" text-anchor="middle">Yr ${y}</text>`;
+  }
+
+  const svg = `
+  <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    ${gridLines}
+    <path d="${areaBetween('p5','p95')}" fill="var(--brass-fill)" opacity="0.15"/>
+    <path d="${areaBetween('p25','p75')}" fill="var(--brass-fill)" opacity="0.3"/>
+    <path d="${pathFor('p50')}" fill="none" stroke="var(--brass)" stroke-width="2.5"/>
+    <path d="${pathFor('p5')}" fill="none" stroke="var(--crimson)" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+    <path d="${pathFor('p95')}" fill="none" stroke="var(--verdigris)" stroke-width="1" stroke-dasharray="3,3" opacity="0.6"/>
+    ${xLabels}
+    <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="var(--ink-soft)" stroke-width="1"/>
+    <line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="var(--ink-soft)" stroke-width="1"/>
+  </svg>`;
+  container.innerHTML = svg;
+}
+
+function fmtShort(n){
+  if(n>=1000000) return '$'+(n/1000000).toFixed(1)+'M';
+  if(n>=1000) return '$'+Math.round(n/1000)+'K';
+  return '$'+Math.round(n);
+}
+
+/* ---------- Historical Stress Tests ----------
+   Approximate historical annual total-return figures for the named
+   period, by broad asset class. These are illustrative, rounded
+   approximations of well-documented historical episodes — not a
+   precise backtest against any specific fund's actual returns. */
+const STRESS_SCENARIOS = {
+  gfc: {
+    label:'2008 Financial Crisis', years:['2007','2008','2009'],
+    usEq:[5.5,-37.0,26.5], intlEq:[11.2,-43.4,32.5], bonds:[7.0,5.2,5.9], cash:[4.5,2.0,0.3],
+    note:'The 2008 Global Financial Crisis: U.S. equities fell roughly 37% in 2008 alone before recovering strongly in 2009. Bonds and cash held up, illustrating why a defensive sleeve matters most right before a downturn.'
+  },
+  dotcom: {
+    label:'2000 Dot-Com Crash', years:['2000','2001','2002'],
+    usEq:[-9.1,-11.9,-22.1], intlEq:[-14.2,-21.4,-15.8], bonds:[11.6,8.4,10.3], cash:[6.0,3.7,1.6],
+    note:'The 2000–2002 dot-com bust: three consecutive down years for equities — a slower grind than 2008\'s single sharp drop, but a longer stretch without recovery.'
+  },
+  covid: {
+    label:'2020 COVID Shock', years:['2019','2020'],
+    usEq:[31.5,18.4], intlEq:[22.0,7.6], bonds:[8.7,7.5], cash:[2.3,0.5],
+    note:'The 2020 COVID crash: a historically fast ~34% intra-year equity drawdown in February–March, followed by a full-year recovery to positive territory — the fastest round-trip in this list.'
+  },
+  stagflation: {
+    label:'1973–74 Stagflation', years:['1973','1974'],
+    usEq:[-14.7,-26.5], intlEq:[-14.2,-22.1], bonds:[2.3,-0.2], cash:[7.8,8.0],
+    note:'1973–74 stagflation: a rare period where equities AND bonds both struggled together against high inflation, while cash (helped by high rates) held up best — the opposite of the usual pattern.'
+  },
+  hikes2022: {
+    label:'2022 Rate-Hike Slide', years:['2021','2022'],
+    usEq:[28.7,-18.1], intlEq:[11.3,-14.5], bonds:[-1.5,-13.0], cash:[0.1,1.5],
+    note:'2022: a rare year where stocks AND bonds fell together as the Fed raised rates rapidly to fight inflation — a reminder that bonds are not a guaranteed hedge in every downturn.'
+  }
+};
+
+document.getElementById('stressBtnRow').addEventListener('click', (e)=>{
+  const btn = e.target.closest('.stress-btn');
+  if(!btn) return;
+  if(!currentAlloc){ alert('Draft a strategy first.'); return; }
+  document.querySelectorAll('.stress-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  runStressTest(btn.dataset.stress);
+});
+
+function runStressTest(key){
+  const scenario = STRESS_SCENARIOS[key];
+  const alloc = currentAlloc;
+  const usFrac = alloc.usEq/100, intlFrac = alloc.intlEq/100, bondsFrac = alloc.bonds/100, cashFrac = alloc.cash/100;
+  const n = scenario.years.length;
+  let value = currentLump;
+  const path = [{label:'Start', value}];
+  for(let i=0;i<n;i++){
+    const r = usFrac*scenario.usEq[i]/100 + intlFrac*scenario.intlEq[i]/100 + bondsFrac*scenario.bonds[i]/100 + cashFrac*scenario.cash[i]/100;
+    value = Math.max(0, value*(1+r) + currentMonthly*12);
+    path.push({label:scenario.years[i], value});
+  }
+  const trough = Math.min(...path.map(p=>p.value));
+  const worstDrawdownPct = currentLump>0 ? ((trough-currentLump)/currentLump*100) : null;
+
+  document.getElementById('stressSummary').innerHTML = `
+    <div class="stress-stat">Scenario<b style="color:var(--ink);">${scenario.label}</b></div>
+    <div class="stress-stat">Lowest Point<b>${fmt(trough)}</b></div>
+    <div class="stress-stat">Ending Value<b style="color:var(--verdigris);">${fmt(value)}</b></div>
+  `;
+  renderStressChart(path);
+  document.getElementById('stressNote').textContent = scenario.note + ' Figures are rounded, illustrative approximations of historical index-level returns by broad asset class — not an exact backtest of your specific funds.';
+  document.getElementById('stressResult').classList.add('visible');
+}
+
+function renderStressChart(path){
+  const container = document.getElementById('stressChart');
+  const W = 700, H = 240, padL = 64, padR = 20, padT = 20, padB = 36;
+  const chartW = W-padL-padR, chartH = H-padT-padB;
+  const maxVal = Math.max(...path.map(p=>p.value)) * 1.1 || 1;
+  const xFor = (i)=> padL + (path.length===1 ? 0 : (i/(path.length-1))*chartW);
+  const yFor = (v)=> padT + chartH - (v/maxVal)*chartH;
+  const linePath = path.map((p,i)=> `${i===0?'M':'L'} ${xFor(i).toFixed(1)} ${yFor(p.value).toFixed(1)}`).join(' ');
+  let grid = '';
+  for(let i=0;i<=3;i++){
+    const v = maxVal*i/3; const y = yFor(v);
+    grid += `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="var(--hair)" stroke-width="1"/>`;
+    grid += `<text x="${padL-8}" y="${(y+4).toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)" text-anchor="end">${fmtShort(v)}</text>`;
+  }
+  const labels = path.map((p,i)=> `<text x="${xFor(i).toFixed(1)}" y="${H-14}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)" text-anchor="middle">${p.label}</text>`).join('');
+  const dots = path.map((p,i)=> `<circle cx="${xFor(i).toFixed(1)}" cy="${yFor(p.value).toFixed(1)}" r="4" fill="var(--crimson)"/>`).join('');
+  container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${grid}<path d="${linePath}" fill="none" stroke="var(--crimson)" stroke-width="2.5"/>${dots}${labels}</svg>`;
+}
+
+/* ---------- Retirement Withdrawal Modeling ---------- */
+document.getElementById('withdrawRate').addEventListener('input', (e)=>{
+  document.getElementById('withdrawRateReadout').textContent = parseFloat(e.target.value).toFixed(1)+'%';
+});
+document.getElementById('withdrawYears').addEventListener('input', (e)=>{
+  document.getElementById('withdrawYearsReadout').textContent = e.target.value+' yrs';
+});
+
+function runWithdrawalModel(){
+  if(!currentAlloc){ alert('Draft a strategy first.'); return; }
+  const balance0 = parseFloat(document.getElementById('withdrawBalance').value) || 0;
+  const rate = parseFloat(document.getElementById('withdrawRate').value)/100;
+  const spanYears = parseInt(document.getElementById('withdrawYears').value);
+  const alloc = currentAlloc;
+  const usFrac = alloc.usEq/100, intlFrac = alloc.intlEq/100, bondsFrac = alloc.bonds/100, cashFrac = alloc.cash/100;
+  const trials = 400;
+  const startWithdrawal = balance0 * rate;
+
+  const yearlyPaths = Array.from({length: spanYears+1}, ()=>[]);
+  let depletions = 0;
+
+  for(let t=0;t<trials;t++){
+    let value = balance0;
+    let withdrawal = startWithdrawal;
+    yearlyPaths[0].push(value);
+    let depleted = false;
+    for(let y=1;y<=spanYears;y++){
+      const rUS = randNormal(MARKET_DATA.usEquity.mean, MARKET_DATA.usEquity.sd)/100;
+      const rIntl = randNormal(MARKET_DATA.intlEquity.mean, MARKET_DATA.intlEquity.sd)/100;
+      const rBonds = randNormal(MARKET_DATA.bonds.mean, MARKET_DATA.bonds.sd)/100;
+      const rCash = randNormal(MARKET_DATA.cash.mean, MARKET_DATA.cash.sd)/100;
+      const portfolioReturn = usFrac*rUS + intlFrac*rIntl + bondsFrac*rBonds + cashFrac*rCash;
+      value = value*(1+portfolioReturn) - withdrawal;
+      if(value<=0){ value = 0; depleted = true; }
+      withdrawal = withdrawal * (1 + MARKET_DATA.cpiYoY/100); // inflation-adjust the withdrawal amount
+      yearlyPaths[y].push(value);
+    }
+    if(depleted) depletions++;
+  }
+
+  function percentile(arr, p){
+    const sorted = [...arr].sort((a,b)=>a-b);
+    const idx = Math.min(sorted.length-1, Math.max(0, Math.floor(p/100*sorted.length)));
+    return sorted[idx];
+  }
+  const yearly = yearlyPaths.map((vals,y)=>({year:y, p5:percentile(vals,5), p25:percentile(vals,25), p50:percentile(vals,50), p75:percentile(vals,75), p95:percentile(vals,95)}));
+
+  document.getElementById('wdAnnual').textContent = fmt(startWithdrawal);
+  document.getElementById('wdDepletionPct').textContent = Math.round(depletions/trials*100)+'%';
+  document.getElementById('wdMedianEnd').textContent = fmt(yearly[yearly.length-1].p50);
+  document.getElementById('withdrawResults').style.display = 'flex';
+  renderMonteCarloChartInto('withdrawChart', {yearly}, spanYears);
+}
+
+// generalized chart renderer reused for the withdrawal model (same visual style as Exhibit D)
+function renderMonteCarloChartInto(containerId, sim, years){
+  renderMonteCarloChart(sim, years, containerId);
+}
+
+// ---------- Explanation layer ----------
+function buildExplanation(goal, years, age, score, tier, alloc){
+  const goalPhrase = {education:"a child's education", retirement:'retirement', home:'a home purchase', emergency:'an emergency reserve', wealth:'general wealth accumulation', major:'a major purchase', other:'this objective'}[goal];
+  const equityPct = Math.round(alloc.usEq + alloc.intlEq);
+  const defensivePct = Math.round(alloc.bonds + alloc.cash);
+  let horizonNote;
+  if(years<=2) horizonNote = `With funds needed in ${years===0?'under a year':years+' year'+(years===1?'':'s')}, capital preservation outweighs growth — there simply isn't time to recover from a downturn before the money is needed.`;
+  else if(years<=5) horizonNote = `A ${years}-year horizon allows a modest equity position, but still leans defensive since a market decline in year 3 or 4 would have limited time to recover.`;
+  else if(years<=10) horizonNote = `A ${years}-year horizon comfortably supports a majority-equity position, since historically most multi-year downturns have recovered well within that window.`;
+  else horizonNote = `With ${years} years to go, the structure leans heavily toward equities — short-term volatility matters far less than long-run compounding at this distance from the goal.`;
+
+  return `This brief is drafted for <strong>${goalPhrase}</strong>. Your Risk Score of <strong>${score}/100</strong> (${tier}) blends your ${years}-year timeline, your stated age of ${age}, and your selected comfort level — not any single one of those alone. ${horizonNote} That translates to roughly <strong>${equityPct}% in equities</strong> and <strong>${defensivePct}% in bonds and cash</strong>. The account structure above prioritizes tax-advantaged vehicles where they exist for this goal type, since sheltering growth from taxes compounds the same way market returns do.`;
+}
+
+// ---------- Fund Preference Match ----------
+// Points to one specific, real fund within the category the user
+// picked, chosen from their Risk Score and timeline — never an
+// individual stock, and never presented as a "best" pick, just a
+// concrete example worth checking further.
+function getFundPreferenceRec(prefType, riskScore, years, goal){
+  if(prefType === 'none') return null;
+
+  if(prefType === 'sector'){
+    const tiltPct = Math.round(5 + (riskScore/100)*10); // 5-15% of the equity sleeve, scaled by score
+    if(riskScore >= 75) return {ticker:'XLK', name:'Technology Select Sector SPDR Fund', category:'Sector ETF', suggestedPct:tiltPct, suggestedNote:`of your equity sleeve, as a satellite tilt`,
+      reason:`A Risk Score of ${riskScore} (Growth-Oriented or higher) is often paired with a growth-leaning sector tilt like Technology — historically more volatile, with higher long-run growth potential. This is a carve-out from your existing equity allocation, not additional money.`};
+    if(riskScore >= 50) return {ticker:'XLY', name:'Consumer Discretionary Select Sector SPDR Fund', category:'Sector ETF', suggestedPct:tiltPct, suggestedNote:`of your equity sleeve, as a satellite tilt`,
+      reason:`A Balanced-to-Growth score suits a moderate-growth sector like Consumer Discretionary — cyclical, but less concentrated than pure Technology exposure. This is a carve-out from your existing equity allocation, not additional money.`};
+    return {ticker:'XLV', name:'Health Care Select Sector SPDR Fund', category:'Sector ETF', suggestedPct:tiltPct, suggestedNote:`of your equity sleeve, as a satellite tilt`,
+      reason:`A more Conservative score pairs better with a historically defensive sector like Health Care, which tends to hold up more steadily in downturns than cyclical sectors. This is a carve-out from your existing equity allocation, not additional money.`};
+  }
+
+  if(prefType === 'international'){
+    const extraPct = riskScore >= 65 ? 10 : 5;
+    if(riskScore >= 65) return {ticker:'VWO', name:'Vanguard FTSE Emerging Markets ETF', category:'International ETF', suggestedPct:extraPct, suggestedNote:`shifted from U.S. equity into this fund, on top of the international slice already in Exhibit C`,
+      reason:`A higher Risk Score can support carrying more emerging-market exposure alongside developed markets — higher long-run growth potential, with meaningfully more volatility.`};
+    return {ticker:'VEA', name:'Vanguard FTSE Developed Markets ETF', category:'International ETF', suggestedPct:extraPct, suggestedNote:`shifted from U.S. equity into this fund, on top of the international slice already in Exhibit C`,
+      reason:`A more moderate score favors developed international markets over emerging ones — still diversifying away from a purely U.S. portfolio, with less volatility than emerging markets.`};
+  }
+
+  if(prefType === 'targetdate'){
+    const targetYear = new Date().getFullYear() + years;
+    const options = [
+      {year:2030, ticker:'VTHRX'}, {year:2040, ticker:'VTIVX'}, {year:2045, ticker:'VFORX'},
+      {year:2050, ticker:'VFIFX'}, {year:2060, ticker:'VTTSX'}
+    ];
+    const nearest = options.reduce((a,b)=> Math.abs(b.year-targetYear) < Math.abs(a.year-targetYear) ? b : a);
+    return {ticker:nearest.ticker, name:`Vanguard Target Retirement ${nearest.year} Fund`, category:'Target-Date Fund', suggestedPct:100, suggestedNote:`— a full replacement for the custom mix above, not an addition to it`, isMutualFund:true,
+      reason:`Based on your ${years}-year horizon (roughly ${targetYear}), this is the closest available target-date vintage. Target-date funds are all-in-one — they hold their own internal stock/bond mix and shift it more conservative automatically as ${nearest.year} approaches. Use one instead of the custom allocation in Exhibit C, not alongside it.`};
+  }
+
+  if(prefType === 'esg'){
+    const equityPct = Math.round(5 + (riskScore/100)*15); // 5-20% of the equity sleeve
+    if(riskScore >= 55) return {ticker:'ESGV', name:'Vanguard ESG U.S. Stock ETF', category:'ESG / Sustainable Fund', suggestedPct:equityPct, suggestedNote:`of your U.S. equity sleeve, screened for ESG criteria`,
+      reason:`ESGV tracks a broad U.S. index that excludes companies flagged on ESG criteria (fossil fuels, weapons, tobacco, and others), while keeping sector weights fairly close to the total market — a way to express a values preference without a large tracking difference from a standard index.`};
+    return {ticker:'ESGV', name:'Vanguard ESG U.S. Stock ETF', category:'ESG / Sustainable Fund', suggestedPct:equityPct, suggestedNote:`of your U.S. equity sleeve, screened for ESG criteria`,
+      reason:`Even at a more conservative Risk Score, an ESG-screened fund like ESGV can sit inside the equity portion of the allocation already suited to your timeline — it changes which companies you own, not how much you hold in equities overall.`};
+  }
+  return null;
+}
+
+function renderFundPrefCard(prefsSet, riskScore, years, goal){
+  const container = document.getElementById('fundPrefCard');
+  const active = [...prefsSet].filter(p=>p!=='none');
+
+  if(active.length===0){ container.classList.remove('visible'); container.innerHTML=''; return; }
+
+  const cardsHtml = active.map(prefType=>{
+    const rec = getFundPreferenceRec(prefType, riskScore, years, goal);
+    if(!rec) return '';
+    const priceAction = rec.isMutualFund
+      ? `<div class="mf-note mono">NAV, not live-quotable here ⓘ</div>`
+      : `<button class="btn" onclick="jumpToPriceLookup('${rec.ticker}')">Check Live Price →</button>`;
+    return `
+    <div class="fund-pref-single">
+      <div class="fund-pref-tag">Fund Preference Match — ${rec.category}</div>
+      <div class="fund-pref-head">
+        <div class="fund-pref-ticker"><span>${rec.ticker}</span>${rec.name}</div>
+        ${priceAction}
+      </div>
+      <div class="fund-pref-alloc mono">Suggested: <strong>${rec.suggestedPct}%</strong> ${rec.suggestedNote}</div>
+      <div class="fund-pref-reason">${rec.reason}</div>
+      ${rec.isMutualFund ? `<div class="disclaimer-inline" style="margin-top:10px;">Mutual funds like ${rec.ticker} price once per day (their NAV, set after markets close) — not throughout the day like a stock or ETF, so this tool's live quote widget (built for stocks/ETFs) can't look it up. Check the current NAV directly at <a href="https://investor.vanguard.com" target="_blank" rel="noopener" style="color:var(--brass);">investor.vanguard.com</a> or on your brokerage.</div>` : ''}
+    </div>`;
+  }).join('');
+
+  container.innerHTML = cardsHtml + `<div class="disclaimer-inline">Each is one concrete example within the category you chose, not a "best" or exclusive recommendation — the Price Lookup tab has more options in every category. Percentages are illustrative starting points, not a precise allocation.</div>`;
+  container.classList.add('visible');
+}
+
+function jumpToPriceLookup(ticker){
+  document.getElementById('priceLookup').scrollIntoView({behavior:'smooth', block:'start'});
+  setTimeout(()=> quickLookup(ticker), 450);
+}
+
+
+/* =========================================================
+   WEEKLY (FREE) PLAN USAGE LIMIT
+   10 free strategy drafts per 5-hour window, tracked via
+   persistent storage (not tied to the prototype login — this
+   mirrors a real usage-metering system, resetting on a fixed
+   rolling window rather than per calendar day.
+   ========================================================= */
+const WEEKLY_LIMIT = 10;
+const WEEKLY_WINDOW_MS = 5 * 60 * 60 * 1000; // 5 hours
+
+async function getUsageState(){
+  let state = null;
+  try{
+    const r = await window.storage.get('weekly-usage', false);
+    if(r && r.value) state = JSON.parse(r.value);
+  }catch(e){ state = null; }
+  const now = Date.now();
+  if(!state || (now - state.windowStart) >= WEEKLY_WINDOW_MS){
+    state = {count:0, windowStart:now};
+  }
+  return state;
+}
+async function saveUsageState(state){
+  try{ await window.storage.set('weekly-usage', JSON.stringify(state), false); }catch(e){ /* non-fatal */ }
+}
+
+async function refreshUsagePanel(){
+  const panel = document.getElementById('usagePanel');
+  const draftBtn = document.getElementById('draftBtn');
+  if(currentPlan !== 'weekly'){
+    panel.style.display = 'none';
+    draftBtn.disabled = false;
+    return null;
+  }
+  panel.style.display = 'block';
+  const state = await getUsageState();
+  const pct = Math.min(100, Math.round(state.count/WEEKLY_LIMIT*100));
+  const resetAt = state.windowStart + WEEKLY_WINDOW_MS;
+  const resetStr = new Date(resetAt).toLocaleTimeString('en-US', {hour:'numeric', minute:'2-digit'});
+
+  document.getElementById('usageLabel').textContent = `${state.count} / ${WEEKLY_LIMIT} free drafts used this window`;
+  document.getElementById('usageReset').textContent = `Resets at ${resetStr} · every 5 hrs`;
+
+  const fill = document.getElementById('usageBarFill');
+  fill.style.width = pct + '%';
+  fill.classList.toggle('warn', pct >= 90 && pct < 100);
+  fill.classList.toggle('blocked', pct >= 100);
+
+  const warnBox = document.getElementById('usageWarning');
+  if(state.count >= WEEKLY_LIMIT){
+    warnBox.style.display = 'block';
+    warnBox.innerHTML = `<strong>Free draft limit reached.</strong> You've used all ${WEEKLY_LIMIT} free drafts for this 5-hour window. It refreshes at <strong>${resetStr}</strong>. Upgrade to Monthly or Yearly for unlimited drafts in the meantime.`;
+    draftBtn.disabled = true;
+  } else if(pct >= 90){
+    warnBox.style.display = 'block';
+    warnBox.innerHTML = `<strong>Heads up:</strong> you're at ${state.count} of ${WEEKLY_LIMIT} free drafts (${pct}%) for this window. It refreshes at <strong>${resetStr}</strong>.`;
+    draftBtn.disabled = false;
+  } else {
+    warnBox.style.display = 'none';
+    draftBtn.disabled = false;
+  }
+  return state;
+}
+setInterval(()=>{ if(currentPlan==='weekly') refreshUsagePanel(); }, 30000);
+
+// ---------- Main draft flow ----------
+async function draftStrategy(){
+  if(currentPlan === 'weekly'){
+    const state = await getUsageState();
+    if(state.count >= WEEKLY_LIMIT){
+      await refreshUsagePanel();
+      document.getElementById('usagePanel').scrollIntoView({behavior:'smooth', block:'center'});
+      return;
+    }
+    state.count += 1;
+    await saveUsageState(state);
+    await refreshUsagePanel();
+  }
+
+  const goal = document.getElementById('goalSelect').value;
+  const years = parseInt(document.getElementById('yearsSlider').value);
+  const age = parseInt(document.getElementById('ageInput').value) || 30;
+  const lump = parseFloat(document.getElementById('lumpInput').value) || 0;
+  const monthly = parseFloat(document.getElementById('monthlyInput').value) || 0;
+
+  const stampWrap = document.getElementById('stampWrap');
+  const output = document.getElementById('output');
+  output.classList.remove('visible');
+  stampWrap.classList.remove('playing');
+  void stampWrap.offsetWidth; // restart animation
+  stampWrap.classList.add('playing');
+
+  setTimeout(()=>{
+    // Exhibit B
+    const goalLabels = {education:"a child's education", retirement:'retirement', home:'a home purchase', emergency:'an emergency reserve', wealth:'general wealth accumulation', major:'a major purchase', other:'this objective'};
+    document.getElementById('acctSub').textContent = `Structured for ${goalLabels[goal]}, with funds required in approximately ${years===0?'under one year':years+' year'+(years===1?'':'s')}.`;
+    const grid = document.getElementById('acctGrid');
+    grid.innerHTML='';
+    getAccounts(goal, years).forEach(a=>{
+      const card = document.createElement('div');
+      card.className='acct-card';
+      card.innerHTML = `<div class="tag mono">${a.tag}</div><h4>${a.name}</h4><p>${a.desc}</p>`;
+      grid.appendChild(card);
+    });
+    document.getElementById('acctNote').innerHTML = getAcctNote(goal);
+
+    // Risk Score Engine
+    currentRiskScore = computeRiskScore(age, years, currentRisk);
+    const tier = riskTier(currentRiskScore);
+    document.getElementById('rsBadge').textContent = currentRiskScore;
+    document.getElementById('rsDetail').innerHTML = `<strong style="color:var(--ink);">${tier}</strong> — derived from your ${years}-year horizon, age ${age}, and stated comfort. This score (not the comfort buttons alone) drives the tilt below.`;
+
+    // Exhibit C
+    let alloc;
+    if(goal==='emergency'){
+      alloc = {cash:100, bonds:0, usEq:0, intlEq:0};
+    } else {
+      alloc = applyRiskTilt(getBaseAllocation(years), currentRiskScore, years);
+    }
+    renderAllocation(alloc);
+    currentAlloc = alloc; // used by what-if sliders
+    renderFundPrefCard(currentFundPrefs, currentRiskScore, years, goal);
+
+    // Exhibit D — market reference + Monte Carlo simulation
+    document.getElementById('marketRef').innerHTML = `<strong>Reference market data</strong> as of ${MARKET_DATA.asOf}: 10-Year Treasury yield ${MARKET_DATA.treasury10y}% (anchors the bond assumption below) · CPI inflation, trailing 12mo ${MARKET_DATA.cpiYoY}%. Equity assumptions use long-run historical averages, not a current-day figure.`;
+    document.getElementById('contribNote').textContent = `Based on ${fmt(lump)} committed today and ${fmt(monthly)} contributed monthly, directed first toward the tax-advantaged accounts above, then toward taxable accounts. Ranges below reflect 500 simulated market paths, not a single fixed assumption.`;
+
+    const sim = runMonteCarlo(alloc, lump, monthly, years, 500);
+    document.getElementById('totalContrib').textContent = fmt(sim.totalContrib);
+    document.getElementById('worstCase').textContent = fmt(sim.worst);
+    document.getElementById('totalGrowth').textContent = fmt(sim.median);
+    document.getElementById('bestCase').textContent = fmt(sim.best);
+    renderMonteCarloChart(sim, years);
+
+    // Inflation-adjusted purchasing power of the median outcome
+    const realMedian = sim.median / Math.pow(1 + MARKET_DATA.cpiYoY/100, Math.max(years,0));
+    document.getElementById('realMedian').textContent = fmt(realMedian);
+    document.getElementById('realMedianNote').innerHTML = `Discounts the Probable (Median) figure by ${MARKET_DATA.cpiYoY}% inflation per year for ${years} year${years===1?'':'s'} — this is what that dollar amount would actually buy at today's prices, which is generally a more meaningful figure than the nominal number above it.`;
+
+    // Pre-fill withdrawal modeling default balance
+    const wdBalanceInput = document.getElementById('withdrawBalance');
+    if(wdBalanceInput) wdBalanceInput.value = Math.round(sim.median);
+
+    currentLump = lump; currentMonthly = monthly; // used by stress tests
+    document.getElementById('stressResult').classList.remove('visible');
+    document.querySelectorAll('.stress-btn').forEach(b=>b.classList.remove('active'));
+
+    // Explanation layer
+    document.getElementById('explanationBox').innerHTML = buildExplanation(goal, years, age, currentRiskScore, tier, alloc);
+
+    // Sync what-if sliders to this brief
+    currentGoal = goal; currentYears = years; currentAge = age;
+    const whatifMonthly = document.getElementById('whatifMonthly');
+    const whatifYears = document.getElementById('whatifYears');
+    whatifMonthly.value = monthly;
+    whatifYears.value = years;
+    document.getElementById('whatifMonthlyReadout').textContent = fmt(monthly);
+    document.getElementById('whatifYearsReadout').textContent = years;
+
+    stampWrap.classList.remove('playing');
+    output.classList.add('visible');
+    output.scrollIntoView({behavior:'smooth', block:'start'});
+
+    // Premium: fund-category detail + rebalancing schedule for this brief
+    renderFundDetail(alloc, lump, monthly);
+    renderRebalanceSchedule(goal, years, alloc);
+
+    // Premium: auto-save to history if entitled
+    if(hasHistory(currentPlan)){
+      saveBriefToHistory({goal, years, lump, monthly, risk: currentRisk, riskScore: currentRiskScore, alloc, totalContrib: sim.totalContrib, totalValue: sim.median, ts: Date.now()});
+    }
+  }, 900);
+}
+
+// ---------- What-if sliders: live recompute without a full redraft ----------
+let currentAlloc = null, currentGoal = null, currentYears = 0, currentAge = 30, currentLump = 0, currentMonthly = 0;
+let whatifDebounce = null;
+function recomputeWhatIf(){
+  if(!currentAlloc) return;
+  clearTimeout(whatifDebounce);
+  whatifDebounce = setTimeout(()=>{
+    const monthly = parseFloat(document.getElementById('whatifMonthly').value) || 0;
+    const years = parseInt(document.getElementById('whatifYears').value);
+    document.getElementById('whatifMonthlyReadout').textContent = fmt(monthly);
+    document.getElementById('whatifYearsReadout').textContent = years;
+
+    const lump = parseFloat(document.getElementById('lumpInput').value) || 0;
+    // Re-derive allocation for the adjusted horizon (risk score horizon component shifts too)
+    const score = computeRiskScore(currentAge, years, currentRisk);
+    const alloc = currentGoal==='emergency' ? {cash:100,bonds:0,usEq:0,intlEq:0} : applyRiskTilt(getBaseAllocation(years), score, years);
+    const sim = runMonteCarlo(alloc, lump, monthly, years, 400);
+
+    document.getElementById('totalContrib').textContent = fmt(sim.totalContrib);
+    document.getElementById('worstCase').textContent = fmt(sim.worst);
+    document.getElementById('totalGrowth').textContent = fmt(sim.median);
+    document.getElementById('bestCase').textContent = fmt(sim.best);
+    renderMonteCarloChart(sim, years);
+  }, 150);
+}
+document.getElementById('whatifMonthly').addEventListener('input', recomputeWhatIf);
+document.getElementById('whatifYears').addEventListener('input', recomputeWhatIf);
+
+// ---------- Export ----------
+function exportPrint(){ window.print(); }
+function exportCSV(){
+  if(!currentAlloc){ alert('Draft a strategy first.'); return; }
+  const rows = [
+    ['Field','Value'],
+    ['Goal', currentGoal],
+    ['Years to Goal', currentYears],
+    ['Risk Score', currentRiskScore],
+    ['US Equity %', currentAlloc.usEq.toFixed(1)],
+    ['International Equity %', currentAlloc.intlEq.toFixed(1)],
+    ['Bonds %', currentAlloc.bonds.toFixed(1)],
+    ['Cash %', currentAlloc.cash.toFixed(1)],
+    ['Total Contributed', document.getElementById('totalContrib').textContent],
+    ['Crash Scenario (5th pct)', document.getElementById('worstCase').textContent],
+    ['Probable (Median)', document.getElementById('totalGrowth').textContent],
+    ['Best Case (95th pct)', document.getElementById('bestCase').textContent]
+  ];
+  const csv = rows.map(r=>r.map(c=>`"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const blob = new Blob([csv], {type:'text/csv'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'king-ali-investing-brief.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/* =========================================================
+   LIVE PRICE LOOKUP (Finnhub API — factual only, no
+   "should you buy this" judgment is made or implied)
+   Get a free key at https://finnhub.io/register (no card
+   required) and paste it below. Free tier: 60 req/min.
+   ========================================================= */
+const FINNHUB_API_KEY = 'd94j0ohr01qjnhucb4rgd94j0ohr01qjnhucb4s0';
+const TWELVEDATA_API_KEY = '6d81f04ba4a8460cbed7a6b8a40fed2b';
+
+function quickLookup(ticker){
+  document.getElementById('tickerInput').value = ticker;
+  lookupPrice();
+}
+
+async function lookupPrice(){
+  const raw = document.getElementById('tickerInput').value.trim().toUpperCase();
+  const errBox = document.getElementById('priceError');
+  const card = document.getElementById('priceCard');
+  const btn = document.getElementById('lookupBtn');
+  errBox.classList.remove('visible');
+  card.classList.remove('visible');
+
+  if(!raw){ errBox.textContent = 'Enter a ticker symbol first.'; errBox.classList.add('visible'); return; }
+
+  // Known Vanguard-style mutual fund tickers (5 letters ending in X) price once daily
+  // as a NAV, not a live intraday quote — Finnhub's free tier doesn't carry these.
+  const KNOWN_MUTUAL_FUNDS = ['VTHRX','VTIVX','VFORX','VFIFX','VTTSX','VTSAX','VFIAX','VBTLX'];
+  if(KNOWN_MUTUAL_FUNDS.includes(raw) || (/^V[A-Z]{4}X$/.test(raw))){
+    errBox.innerHTML = `${raw} looks like a mutual fund ticker. Mutual funds price once per day (their NAV, set after markets close) rather than throughout the day, so this widget — built for live stock/ETF quotes — can't look it up. Check the current NAV at <a href="https://investor.vanguard.com" target="_blank" rel="noopener" style="color:var(--crimson); text-decoration:underline;">investor.vanguard.com</a> or your brokerage instead.`;
+    errBox.classList.add('visible');
+    return;
+  }
+
+  if(!FINNHUB_API_KEY || FINNHUB_API_KEY === 'YOUR_FINNHUB_API_KEY'){
+    errBox.innerHTML = 'No API key configured yet. Get a free key at <a href="https://finnhub.io/register" target="_blank" rel="noopener" style="color:var(--crimson); text-decoration:underline;">finnhub.io/register</a> and paste it into the <code>FINNHUB_API_KEY</code> constant in this file.';
+    errBox.classList.add('visible');
+    return;
+  }
+
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = 'Looking up…';
+
+  try{
+    const res = await fetch(`https://finnhub.io/api/v1/quote?symbol=${encodeURIComponent(raw)}&token=${FINNHUB_API_KEY}`);
+    if(!res.ok) throw new Error('Request failed (' + res.status + ')');
+    const data = await res.json();
+
+    if(!data || data.c === 0 && data.h === 0 && data.l === 0){
+      errBox.textContent = `No data found for "${raw}" — check the symbol is correct (e.g. TSLA, not Tesla).`;
+      errBox.classList.add('visible');
+      return;
+    }
+
+    const change = data.d;
+    const changePct = data.dp;
+    const isUp = change >= 0;
+
+    document.getElementById('priceSymbol').textContent = raw;
+    document.getElementById('priceValue').textContent = '$' + data.c.toFixed(2);
+    document.getElementById('priceChange').textContent = `${isUp?'+':''}${change.toFixed(2)} (${isUp?'+':''}${changePct.toFixed(2)}%) today`;
+    document.getElementById('priceChange').className = 'price-card-change ' + (isUp ? 'up' : 'down');
+    document.getElementById('priceHigh').textContent = '$' + data.h.toFixed(2);
+    document.getElementById('priceLow').textContent = '$' + data.l.toFixed(2);
+    document.getElementById('priceClose').textContent = '$' + data.pc.toFixed(2);
+    document.getElementById('priceTime').textContent = new Date().toLocaleTimeString('en-US', {hour:'2-digit', minute:'2-digit'});
+    card.classList.add('visible');
+
+    fetchHistoricalReturns(raw);
+  }catch(err){
+    console.error('Price lookup failed:', err);
+    errBox.textContent = "Couldn't retrieve that price. Check your API key, the ticker symbol, or your connection, and try again.";
+    errBox.classList.add('visible');
+  }finally{
+    btn.disabled = false;
+    btn.textContent = originalText;
+  }
+}
+
+/* ---------- Historical 1Y / 2Y returns (Twelve Data) ---------- */
+let historicalSeries = null; // {dates:[...], closes:[...]} weekly, oldest -> newest
+let activeReturnSpan = '1y';
+
+async function fetchHistoricalReturns(symbol){
+  const errBox = document.getElementById('returnError');
+  errBox.classList.remove('visible');
+  historicalSeries = null;
+
+  if(!TWELVEDATA_API_KEY || TWELVEDATA_API_KEY === 'YOUR_TWELVEDATA_API_KEY'){
+    errBox.innerHTML = 'No Twelve Data key configured yet. Get a free key at <a href="https://twelvedata.com/pricing" target="_blank" rel="noopener" style="color:var(--crimson); text-decoration:underline;">twelvedata.com/pricing</a> and paste it into the <code>TWELVEDATA_API_KEY</code> constant in this file.';
+    errBox.classList.add('visible');
+    document.getElementById('returnPct').textContent = '—';
+    return;
+  }
+
+  try{
+    const res = await fetch(`https://api.twelvedata.com/time_series?symbol=${encodeURIComponent(symbol)}&interval=1week&outputsize=105&apikey=${TWELVEDATA_API_KEY}`);
+    const data = await res.json();
+    if(data.status === 'error' || !data.values){
+      throw new Error(data.message || 'No historical data returned');
+    }
+    // Twelve Data returns newest-first — reverse to chronological order
+    const values = [...data.values].reverse();
+    historicalSeries = {
+      dates: values.map(v=>v.datetime),
+      closes: values.map(v=>parseFloat(v.close))
+    };
+    showReturnSpan(activeReturnSpan);
+  }catch(err){
+    console.error('Historical fetch failed:', err);
+    errBox.textContent = "Couldn't retrieve historical data. Check your Twelve Data API key or try a different symbol — some mutual fund tickers have limited history on the free tier.";
+    errBox.classList.add('visible');
+    document.getElementById('returnPct').textContent = '—';
+    document.getElementById('returnChart1y').innerHTML = '';
+    document.getElementById('returnChart2y').innerHTML = '';
+  }
+}
+
+function showReturnSpan(span){
+  activeReturnSpan = span;
+  document.querySelectorAll('.return-tab').forEach(t=>t.classList.toggle('active', t.dataset.span===span));
+  document.getElementById('returnChart1y').classList.toggle('visible', span==='1y');
+  document.getElementById('returnChart2y').classList.toggle('visible', span==='2y');
+
+  if(!historicalSeries) return;
+  const weeks = span==='1y' ? 53 : 105;
+  const closes = historicalSeries.closes.slice(-weeks);
+  const dates = historicalSeries.dates.slice(-weeks);
+  if(closes.length < 2) return;
+
+  const startPrice = closes[0], endPrice = closes[closes.length-1];
+  const pctChange = ((endPrice-startPrice)/startPrice)*100;
+  const isUp = pctChange >= 0;
+  const pctEl = document.getElementById('returnPct');
+  pctEl.textContent = `${isUp?'+':''}${pctChange.toFixed(1)}% over the ${span==='1y'?'past year':'past 2 years'} (${dates[0]} → ${dates[dates.length-1]})`;
+  pctEl.className = 'return-pct ' + (isUp?'up':'down');
+
+  renderReturnChart(closes, dates, span==='1y' ? 'returnChart1y' : 'returnChart2y', isUp);
+}
+
+function renderReturnChart(closes, dates, containerId, isUp){
+  const container = document.getElementById(containerId);
+  const W = 700, H = 200, padL = 56, padR = 16, padT = 16, padB = 26;
+  const chartW = W-padL-padR, chartH = H-padT-padB;
+  const minV = Math.min(...closes), maxV = Math.max(...closes);
+  const range = (maxV-minV) || 1;
+
+  const xFor = (i)=> padL + (i/(closes.length-1))*chartW;
+  const yFor = (v)=> padT + chartH - ((v-minV)/range)*chartH;
+
+  const linePath = closes.map((c,i)=> `${i===0?'M':'L'} ${xFor(i).toFixed(1)} ${yFor(c).toFixed(1)}`).join(' ');
+  const areaPath = linePath + ` L ${xFor(closes.length-1).toFixed(1)} ${(H-padB).toFixed(1)} L ${xFor(0).toFixed(1)} ${(H-padB).toFixed(1)} Z`;
+  const color = isUp ? 'var(--verdigris)' : 'var(--crimson)';
+
+  const svg = `
+  <svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">
+    <text x="${padL-8}" y="${(yFor(maxV)+4).toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)" text-anchor="end">${fmtShort(maxV)}</text>
+    <text x="${padL-8}" y="${(yFor(minV)+4).toFixed(1)}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)" text-anchor="end">${fmtShort(minV)}</text>
+    <line x1="${padL}" y1="${(H-padB).toFixed(1)}" x2="${W-padR}" y2="${(H-padB).toFixed(1)}" stroke="var(--hair)" stroke-width="1"/>
+    <path d="${areaPath}" fill="${color}" opacity="0.12"/>
+    <path d="${linePath}" fill="none" stroke="${color}" stroke-width="2"/>
+    <text x="${padL}" y="${H-8}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)">${dates[0]}</text>
+    <text x="${W-padR}" y="${H-8}" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--ink-soft)" text-anchor="end">${dates[dates.length-1]}</text>
+  </svg>`;
+  container.innerHTML = svg;
+}
+
+
+
+/* =========================================================
+   PLAN SIMULATOR + PREMIUM GATING
+   (No real payment or account system is wired up — this
+   simulator lets you preview what each paid tier unlocks.)
+   ========================================================= */
+let currentPlan = 'weekly';
+const goalLabelMap = {education:"Child's Education", retirement:'Retirement', home:'Home Down Payment', emergency:'Emergency Reserve', wealth:'Wealth Accumulation', major:'Major Purchase', other:'Other'};
+const planLabelMap = {weekly:'Weekly Plan', monthly:'Monthly Plan', yearly:'Yearly Plan'};
+
+function hasHistory(plan){ return plan==='monthly' || plan==='yearly'; }
+function hasFullPremium(plan){ return plan==='yearly'; } // fund detail, rebalancing, multi-goal
+
+function setPlan(plan){
+  currentPlan = plan;
+  document.getElementById('planLabel').textContent = planLabelMap[plan];
+  document.querySelectorAll('.plan-chip').forEach(c=>c.classList.toggle('active', c.dataset.plan===plan));
+  document.querySelectorAll('.tier').forEach(t=>{
+    t.classList.toggle('current', t.dataset.plan===plan);
+  });
+  applyGating();
+  loadHistory();
+  refreshUsagePanel();
+}
+
+document.getElementById('planSwitch').addEventListener('click', (e)=>{
+  const chip = e.target.closest('.plan-chip');
+  if(chip) setPlan(chip.dataset.plan);
+});
+
+function applyGating(){
+  const hist = hasHistory(currentPlan);
+  const full = hasFullPremium(currentPlan);
+  toggleGate('history', hist);
+  toggleGate('dash', full);
+  toggleGate('fundDetail', hist);
+  toggleGate('rebal', full);
+  toggleGate('withdraw', full);
+  toggleGate('aiAdvisor', hist);
+}
+function toggleGate(prefix, unlocked){
+  const u = document.getElementById(prefix+'Unlocked');
+  const l = document.getElementById(prefix+'Locked');
+  if(u) u.classList.toggle('unlocked', unlocked);
+  if(l) l.classList.toggle('hidden', unlocked);
+}
+
+/* ---------- Exhibit E: Fund-Category Detail + Reference Tickers ---------- */
+// Reference prices are a dated snapshot, not a live feed. They will go stale —
+// always confirm the current price on your brokerage before placing an order.
+const PRICE_SNAPSHOT_DATE = 'July 2, 2026';
+const REFERENCE_PRICES = {
+  VOO:  {name:'Vanguard S&P 500 ETF', price:685.46},
+  SPYM: {name:'SPDR Portfolio S&P 500 ETF (formerly SPLG)', price:80.00},
+  VXUS: {name:'Vanguard Total International Stock ETF', price:84.53},
+  BND:  {name:'Vanguard Total Bond Market ETF', price:73.06},
+  VGSH: {name:'Vanguard Short-Term Treasury ETF', price:58.02},
+  ESGV: {name:'Vanguard ESG U.S. Stock ETF', price:98.10}
+};
+
+function renderFundDetail(alloc, lump, monthly){
+  const body = document.getElementById('fundDetailBody');
+  if(!body) return;
+  const groups = [
+    {title:'U.S. Equity Index', total:alloc.usEq, subs:[['Large-Cap Blend',0.7],['Mid & Small-Cap',0.3]],
+      ticker:'VOO', alt:{ticker:'SPYM', reason:'tracks the same S&P 500 index at a far lower price per share'}},
+    {title:'International Equity Index', total:alloc.intlEq, subs:[['Developed Markets',0.65],['Emerging Markets',0.35]],
+      ticker:'VXUS', alt:null},
+    {title:'Bond / Fixed Income Index', total:alloc.bonds, subs:[['Investment-Grade Aggregate',0.7],['Short-Term Treasury',0.3]],
+      ticker:'BND', alt:{ticker:'VGSH', reason:'a shorter-duration Treasury-only alternative at a lower price per share'}},
+    {title:'Cash · HYSA · Money Market', total:alloc.cash, subs:[['High-Yield Savings',0.6],['Money Market / CDs',0.4]],
+      ticker:null, alt:null}
+  ];
+
+  body.innerHTML = `
+    <div class="disclaimer-inline" style="margin-bottom:22px;">Reference prices below are a dated snapshot as of <strong style="color:var(--ink);">${PRICE_SNAPSHOT_DATE}</strong> — not a live feed. Share prices move daily; always confirm the current price on your brokerage before placing an order. These are broad, diversified index funds, not individual company stocks — nothing here is a recommendation to buy or sell at any particular time.</div>
+  ` + groups.filter(g=>g.total>0.5).map(g=>{
+    let fundBlock = '';
+    if(g.ticker){
+      const ref = REFERENCE_PRICES[g.ticker];
+      const monthlyDollars = monthly * (g.total/100);
+      const lumpDollars = lump * (g.total/100);
+      let budgetNote;
+      if(monthlyDollars >= ref.price){
+        budgetNote = `Your monthly allocation here (${fmt(monthlyDollars)}) covers a full share of ${g.ticker} (${fmt(ref.price)}) on its own.`;
+      } else if(monthlyDollars > 0){
+        budgetNote = `Your monthly allocation here (${fmt(monthlyDollars)}) is below one full share of ${g.ticker} (${fmt(ref.price)}). Most major brokerages — Fidelity, Schwab, Vanguard, Robinhood — support buying fractional shares by dollar amount, so this isn't a blocker; confirm your brokerage supports it before automating the purchase.`;
+      } else {
+        budgetNote = `No monthly amount is currently allocated to this class — only your lump sum (${fmt(lumpDollars)}) applies here.`;
+      }
+      if(g.alt){
+        const altRef = REFERENCE_PRICES[g.alt.ticker];
+        budgetNote += ` If you'd rather buy whole shares only, ${g.alt.ticker} (${altRef.name}, ${fmt(altRef.price)}) ${g.alt.reason}.`;
+      }
+      fundBlock = `
+        <div class="suballoc-row" style="border-top:1px solid var(--hair); margin-top:8px; padding-top:10px;">
+          <span><strong style="color:var(--brass); font-family:'IBM Plex Mono',monospace;">${g.ticker}</strong> — ${REFERENCE_PRICES[g.ticker].name}</span>
+          <span>${fmt(REFERENCE_PRICES[g.ticker].price)}/share</span>
+        </div>
+        <div class="disclaimer-inline" style="margin-top:8px;">${budgetNote}</div>`;
+    } else {
+      fundBlock = `<div class="disclaimer-inline" style="margin-top:8px;">Held directly at a bank or brokerage as cash — not a market security, so no ticker or share price applies.</div>`;
+    }
+    return `
+    <div class="suballoc-group">
+      <div class="suballoc-group-title">${g.title} — ${Math.round(g.total)}% of portfolio</div>
+      ${g.subs.map(s=>`<div class="suballoc-row"><span>${s[0]}</span><span>${(g.total*s[1]).toFixed(1)}%</span></div>`).join('')}
+      ${fundBlock}
+    </div>`;
+  }).join('') + `<div class="disclaimer-inline">Note: this applies to open-market accounts (a brokerage IRA or taxable account). An employer 401(k) or 403(b) instead offers a fixed menu of funds chosen by the plan administrator — these tickers won't appear there; select the closest equivalent from your plan's fund list.</div>`
+  + buildTaxLossHarvestNote(alloc);
+}
+
+/* ---------- Tax-Loss Harvesting Heuristic ----------
+   A general, rule-based note — not a real-time check against your
+   actual cost basis, since this tool never sees your brokerage. */
+function buildTaxLossHarvestNote(alloc){
+  if(alloc.usEq<0.5 && alloc.intlEq<0.5 && alloc.bonds<0.5) return '';
+  return `<div class="note-box" style="margin-top:18px;">
+    <strong>Tax-loss harvesting — a general note, only relevant in a taxable brokerage account:</strong> if a position in your equity or bond sleeve is sitting at a loss versus what you paid, some brokerages let you sell it, realize the loss to offset other gains (up to $3,000/year against ordinary income, with the rest carried forward), and immediately buy a similar-but-not-"substantially identical" fund to stay invested — e.g. swapping VOO for SPYM, or BND for VGSH, rather than buying back the exact same fund within 30 days (the IRS "wash sale" rule). This tool can't see your actual cost basis or gains/losses, since it isn't connected to a brokerage — this is a general mechanic to be aware of, not a signal that you currently have a loss to harvest. A tax professional can confirm whether it applies to your situation.
+  </div>`;
+}
+
+/* ---------- Exhibit F: Rebalancing Schedule ---------- */
+function renderRebalanceSchedule(goal, years, alloc){
+  const table = document.getElementById('rebalTable');
+  const nextReview = document.getElementById('nextReview');
+  if(!table) return;
+  const checkpoints = [];
+  const step = years>=12 ? Math.round(years/4) : (years>=4 ? 2 : 1);
+  for(let y=years; y>=0; y -= Math.max(step,1)){
+    checkpoints.push(y);
+    if(checkpoints.length>=5) break;
+  }
+  if(checkpoints[checkpoints.length-1]!==0 && years>0) checkpoints.push(0);
+
+  let rows = checkpoints.map(y=>{
+    const a = goal==='emergency' ? {cash:100,bonds:0,usEq:0,intlEq:0} : applyRiskTilt(getBaseAllocation(y), currentRiskScore, y);
+    const label = y===years ? `Today (${y} yrs out)` : (y===0 ? 'At target date' : `${y} yrs out`);
+    return `<tr><td>${label}</td><td class="mono">${Math.round(a.usEq+a.intlEq)}%</td><td class="mono">${Math.round(a.bonds)}%</td><td class="mono">${Math.round(a.cash)}%</td></tr>`;
+  }).join('');
+
+  table.innerHTML = `<tr><th>Checkpoint</th><th class="mono">Equity</th><th class="mono">Bonds</th><th class="mono">Cash</th></tr>${rows}`;
+
+  const reviewDate = new Date();
+  reviewDate.setFullYear(reviewDate.getFullYear()+1);
+  const dateStr = reviewDate.toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+  nextReview.innerHTML = `<strong>Next suggested review:</strong> ${dateStr}. As a rule of thumb, revisit the allocation annually, or immediately after any large change in timeline, income, or goal amount.`;
+}
+
+/* ---------- Exhibit G: Saved Brief History (window.storage) ----------
+   Namespaced by the signed-in user (Firebase Google account or the
+   prototype email form) — NOT by the plan simulator alone. Two
+   different signed-in identities get two different storage keys,
+   so one person's briefs never show up for another. */
+function historyKey(){
+  if(!currentUser) return null; // no identity, nowhere safe to save
+  const id = (currentUser.email || currentUser.name).toLowerCase().trim();
+  return 'brief-history:' + id;
+}
+
+async function saveBriefToHistory(entry){
+  const key = historyKey();
+  if(!key) return; // not signed in — nothing saved (see note in loadHistory)
+  try{
+    let existing = [];
+    try{
+      const r = await window.storage.get(key, false);
+      if(r && r.value) existing = JSON.parse(r.value);
+    }catch(e){ existing = []; }
+    existing.unshift(entry);
+    existing = existing.slice(0, 25);
+    await window.storage.set(key, JSON.stringify(existing), false);
+    loadHistory();
+  }catch(e){ console.error('Could not save brief history', e); }
+}
+
+async function loadHistory(){
+  const list = document.getElementById('histList');
+  const dashGrid = document.getElementById('dashGrid');
+  if(!list) return;
+
+  const key = historyKey();
+  if(!key){
+    list.innerHTML = '<div class="empty-state">Sign in to save and revisit your briefs — history is tied to your account, not this browser.</div>';
+    if(dashGrid) dashGrid.innerHTML = '<div class="empty-state">Sign in to track goals across visits.</div>';
+    window._briefHistoryCache = [];
+    return;
+  }
+
+  let entries = [];
+  try{
+    const r = await window.storage.get(key, false);
+    if(r && r.value) entries = JSON.parse(r.value);
+  }catch(e){ entries = []; }
+
+  if(entries.length===0){
+    list.innerHTML = `<div class="empty-state">No briefs saved yet for ${currentUser.name}. Draft a strategy above while on the Monthly or Yearly plan to begin building your history.</div>`;
+  } else {
+    list.innerHTML = entries.map((e,i)=>{
+      const d = new Date(e.ts).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
+      return `<div class="hist-row">
+        <div class="hist-row-main">
+          <div class="hist-row-title">${goalLabelMap[e.goal]||e.goal}</div>
+          <div class="hist-row-meta">${d} · ${e.years} yrs · ${fmt(e.lump)} lump · ${fmt(e.monthly)}/mo · ${e.risk}</div>
+        </div>
+        <div class="hist-row-actions">
+          <button class="mini-btn" onclick="reloadBrief(${i})">Reload</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  if(dashGrid){
+    if(entries.length===0){
+      dashGrid.innerHTML = '<div class="empty-state">No goals tracked yet. Draft a brief for each objective to populate your dashboard.</div>';
+    } else {
+      const latestByGoal = {};
+      entries.forEach(e=>{ if(!latestByGoal[e.goal]) latestByGoal[e.goal]=e; });
+      dashGrid.innerHTML = Object.values(latestByGoal).map(e=>`
+        <div class="dash-card">
+          <div class="tag mono">${e.years} yrs remaining</div>
+          <h4>${goalLabelMap[e.goal]||e.goal}</h4>
+          <div class="dash-stat"><span>Monthly Contribution</span><span>${fmt(e.monthly)}</span></div>
+          <div class="dash-stat"><span>Total Contributed</span><span>${fmt(e.totalContrib)}</span></div>
+          <div class="dash-stat"><span>Illustrative Value</span><span>${fmt(e.totalValue)}</span></div>
+        </div>`).join('');
+    }
+  }
+
+  window._briefHistoryCache = entries;
+  renderMilestones(entries);
+  populateCompareSelects(entries);
+}
+
+/* ---------- Achievement Milestones ---------- */
+const MILESTONE_DEFS = [
+  {id:'first', icon:'🖋️', name:'First Brief Drafted', test:e=>e.length>=1},
+  {id:'three', icon:'📚', name:'3 Briefs Saved', test:e=>e.length>=3},
+  {id:'goals', icon:'🎯', name:'2+ Goals Tracked', test:e=>new Set(e.map(x=>x.goal)).size>=2},
+  {id:'diversified', icon:'🌐', name:'Diversified Portfolio', test:e=>e.some(x=>x.alloc && x.alloc.intlEq>=15)},
+  {id:'consistent', icon:'📈', name:'Consistent Contributor', test:e=>e.some(x=>x.monthly>=250)},
+  {id:'longhaul', icon:'⏳', name:'Long-Horizon Planner', test:e=>e.some(x=>x.years>=15)},
+];
+function renderMilestones(entries){
+  const grid = document.getElementById('milestoneGrid');
+  if(!grid) return;
+  grid.innerHTML = MILESTONE_DEFS.map(m=>{
+    const earned = m.test(entries);
+    return `<div class="milestone-badge ${earned?'earned':''}"><div class="icon">${m.icon}</div><div class="name">${m.name}</div></div>`;
+  }).join('');
+}
+
+/* ---------- Side-by-Side Comparison ---------- */
+function populateCompareSelects(entries){
+  const a = document.getElementById('compareSelectA');
+  const b = document.getElementById('compareSelectB');
+  if(!a || !b) return;
+  if(entries.length===0){
+    a.innerHTML = '<option>No saved briefs yet</option>';
+    b.innerHTML = '<option>No saved briefs yet</option>';
+    return;
+  }
+  const opts = entries.map((e,i)=>{
+    const d = new Date(e.ts).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+    return `<option value="${i}">${goalLabelMap[e.goal]||e.goal} — ${d}</option>`;
+  }).join('');
+  a.innerHTML = opts; b.innerHTML = opts;
+  if(entries.length>1) b.value = 1;
+}
+
+function renderComparison(){
+  const entries = window._briefHistoryCache || [];
+  const ai = parseInt(document.getElementById('compareSelectA').value);
+  const bi = parseInt(document.getElementById('compareSelectB').value);
+  const table = document.getElementById('compareTable');
+  if(isNaN(ai) || isNaN(bi) || !entries[ai] || !entries[bi]){ return; }
+  const A = entries[ai], B = entries[bi];
+  const rows = [
+    ['Goal', goalLabelMap[A.goal]||A.goal, goalLabelMap[B.goal]||B.goal],
+    ['Years to Goal', A.years, B.years],
+    ['Lump Sum', fmt(A.lump), fmt(B.lump)],
+    ['Monthly Contribution', fmt(A.monthly), fmt(B.monthly)],
+    ['Risk Comfort', A.risk, B.risk],
+    ['Risk Score', A.riskScore, B.riskScore],
+    ['U.S. Equity %', Math.round(A.alloc.usEq)+'%', Math.round(B.alloc.usEq)+'%'],
+    ['Intl. Equity %', Math.round(A.alloc.intlEq)+'%', Math.round(B.alloc.intlEq)+'%'],
+    ['Bonds %', Math.round(A.alloc.bonds)+'%', Math.round(B.alloc.bonds)+'%'],
+    ['Cash %', Math.round(A.alloc.cash)+'%', Math.round(B.alloc.cash)+'%'],
+    ['Total Contributed', fmt(A.totalContrib), fmt(B.totalContrib)],
+    ['Simulated Median Value', fmt(A.totalValue), fmt(B.totalValue)],
+  ];
+  table.innerHTML = `<tr><th>Field</th><th>Brief A</th><th>Brief B</th></tr>` +
+    rows.map(r=>`<tr><td>${r[0]}</td><td class="mono">${r[1]}</td><td class="mono">${r[2]}</td></tr>`).join('');
+  table.style.display = 'table';
+}
+
+function reloadBrief(i){
+  const e = (window._briefHistoryCache||[])[i];
+  if(!e) return;
+  document.getElementById('goalSelect').value = e.goal;
+  document.getElementById('yearsSlider').value = e.years;
+  document.getElementById('yearsSlider').dispatchEvent(new Event('input'));
+  document.getElementById('lumpInput').value = e.lump;
+  document.getElementById('monthlyInput').value = e.monthly;
+  document.querySelectorAll('#riskRow .risk-btn').forEach(b=>b.classList.toggle('active', b.dataset.risk===e.risk));
+  currentRisk = e.risk;
+  document.getElementById('brief').scrollIntoView({behavior:'smooth'});
+}
+
+async function clearHistory(){
+  const key = historyKey();
+  if(!key) return;
+  try{
+    await window.storage.delete(key, false);
+  }catch(e){ /* key may not exist yet */ }
+  loadHistory();
+}
+
+// Populate the document reference line with today's date
+(function(){
+  const el = document.getElementById('docRef');
+  if(el){
+    const today = new Date().toLocaleDateString('en-US', {year:'numeric', month:'long', day:'numeric'});
+    el.textContent = `Ref. No. KA-EX0 · Issued ${today}`;
+  }
+})();
+
+// initialize plan bar + gating + history on load
+setPlan('weekly');
+
+/* ---------- TAB BAR: click-to-scroll + scroll-spy ---------- */
+const tabItems = Array.from(document.querySelectorAll('.tab-item'));
+tabItems.forEach(tab=>{
+  tab.addEventListener('click', ()=>{
+    const el = document.getElementById(tab.dataset.target);
+    if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+  });
+});
+const tabObserver = new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      const match = tabItems.find(t=>t.dataset.target===entry.target.id);
+      if(match){
+        tabItems.forEach(t=>t.classList.remove('active'));
+        match.classList.add('active');
+      }
+    }
+  });
+}, {rootMargin:'-40% 0px -55% 0px'});
+tabItems.forEach(tab=>{
+  const el = document.getElementById(tab.dataset.target);
+  if(el) tabObserver.observe(el);
+});
+
+function toggleFooterLegal(){
+  const el = document.getElementById('footerLegal');
+  const btn = document.getElementById('footerToggle');
+  const expanded = el.classList.toggle('expanded');
+  btn.textContent = expanded ? 'Show Less ↑' : 'Read Full Disclosure ↓';
+}
+
+function expandFooterLegalAndScroll(){
+  const el = document.getElementById('footerLegal');
+  const btn = document.getElementById('footerToggle');
+  if(!el.classList.contains('expanded')){
+    el.classList.add('expanded');
+    btn.textContent = 'Show Less ↑';
+  }
+  el.scrollIntoView({behavior:'smooth', block:'center'});
+}
+
+/* ---------- Modal dismissal: Escape + click-outside ----------
+   (The mandatory disclaimer modal is intentionally excluded —
+   it must be explicitly acknowledged, not dismissed.) */
+document.addEventListener('keydown', (e)=>{
+  if(e.key === 'Escape'){
+    closeAuthModal();
+    closeCheckoutModal();
+  }
+});
+['authVeil','checkoutVeil'].forEach(id=>{
+  const veil = document.getElementById(id);
+  if(veil){
+    veil.addEventListener('click', (e)=>{
+      if(e.target === veil){
+        if(id==='authVeil') closeAuthModal();
+        if(id==='checkoutVeil') closeCheckoutModal();
+      }
+    });
+  }
+});
+
+/* =========================================================
+   ACCOUNT + CHECKOUT (PROTOTYPE ONLY)
+   No real auth provider is contacted and no payment is
+   ever processed, transmitted, or stored — this simulates
+   the flow for demonstration purposes only.
+   ========================================================= */
+const PLAN_INFO = {
+  weekly:  {name:'Weekly (Free)', price:'Free', needsCheckout:false},
+  monthly: {name:'Monthly', price:'$14.99 / mo — first 7 days free', needsCheckout:true, trialDays:7, trialLabel:'7-day'},
+  yearly:  {name:'Yearly', price:'$214.99 / yr — first month free', needsCheckout:true, trialDays:30, trialLabel:'1-month'}
+};
+
+function handlePlanSelect(plan){
+  pendingPlan = plan;
+  if(!currentUser){ openAuthModal(plan); return; }
+  proceedAfterAuth(plan);
+}
+
+function proceedAfterAuth(plan){
+  const info = PLAN_INFO[plan];
+  if(info.needsCheckout){
+    openCheckoutModal(plan);
+  } else {
+    setPlan(plan);
+    closeAuthModal();
+    closeCheckoutModal();
+    document.getElementById('planLabel').scrollIntoView({behavior:'smooth', block:'center'});
+  }
+}
+
+function openAuthModal(plan){
+  if(plan) pendingPlan = plan;
+  document.getElementById('authVeil').classList.remove('hidden');
+}
+function closeAuthModal(){
+  document.getElementById('authVeil').classList.add('hidden');
+  document.getElementById('authPassword').value = '';
+}
+
+async function authenticate(method){
+  if(method === 'google'){
+    const btn = document.getElementById('googleSignInBtn');
+    if(!window.__firebaseGoogleSignIn){
+      alert('Google Sign-In is still loading — give it a second and try again.');
+      return;
+    }
+    btn.disabled = true;
+    const originalText = btn.innerHTML;
+    btn.innerHTML = '<div class="provider-mark google">G</div> Connecting…';
+    try{
+      const result = await window.__firebaseGoogleSignIn();
+      currentUser = {name: result.name, email: result.email, method:'google'};
+      updateAccountBadge();
+      closeAuthModal();
+      if(pendingPlan) proceedAfterAuth(pendingPlan);
+    }catch(err){
+      console.error('Firebase Google sign-in failed:', err);
+      alert("Google sign-in didn't complete. Most often this means the page's current address isn't yet in this Firebase project's Authorized Domains list, or the popup was closed/blocked. You can use Email below instead.");
+    }finally{
+      btn.disabled = false;
+      btn.innerHTML = originalText;
+    }
+    return;
+  }
+
+  // Email — a simple prototype form, no real account is created.
+  const name = document.getElementById('authName').value.trim();
+  const email = document.getElementById('authEmail').value.trim();
+  if(!name || !email){ alert('Enter a name and email to continue (this is a prototype — any values work).'); return; }
+  // Password (if any) is intentionally never read into state or stored anywhere.
+  document.getElementById('authPassword').value = '';
+  currentUser = {name, email, method:'email'};
+  updateAccountBadge();
+  closeAuthModal();
+  if(pendingPlan) proceedAfterAuth(pendingPlan);
+}
+
+function signOut(){
+  currentUser = null;
+  updateAccountBadge();
+}
+
+function updateAccountBadge(){
+  const badge = document.getElementById('accountBadge');
+  if(currentUser){
+    badge.innerHTML = `
+      <div class="who">Signed in as <strong>${currentUser.name}</strong></div>
+      <button class="link-btn" onclick="signOut()">Sign Out</button>`;
+  } else {
+    badge.innerHTML = `
+      <div class="nav-tag">Private Advisory · Est. MMXXIV</div>
+      <button class="btn" style="padding:9px 18px; font-size:11px;" onclick="openAuthModal(null)">Sign In</button>`;
+  }
+  if(typeof loadHistory === 'function') loadHistory(); // refresh to the now-current identity's saved briefs
+}
+
+function openCheckoutModal(plan){
+  pendingPlan = plan;
+  const info = PLAN_INFO[plan];
+  document.getElementById('checkoutPlanName').textContent = info.name;
+  document.getElementById('checkoutPlanPrice').textContent = info.price;
+  document.getElementById('checkoutForm').style.display = 'block';
+  document.getElementById('checkoutStatus').classList.remove('active');
+  document.getElementById('checkoutVeil').classList.remove('hidden');
+}
+function closeCheckoutModal(){
+  document.getElementById('checkoutVeil').classList.add('hidden');
+}
+
+async function submitCheckout(){
+  const btn = document.getElementById('confirmSubBtn');
+  const errBox = document.getElementById('checkoutError');
+  if(errBox) errBox.style.display = 'none';
+  if(btn){ btn.disabled = true; btn.textContent = 'Redirecting to Stripe…'; }
+
+  try{
+    const email = currentUser ? currentUser.email : (document.getElementById('ccEmail')?.value.trim() || undefined);
+    const res = await fetch('/.netlify/functions/create-checkout-session', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ plan: pendingPlan, email })
+    });
+    if(!res.ok) throw new Error('Server responded ' + res.status);
+    const data = await res.json();
+    if(!data.url) throw new Error('No checkout URL returned');
+    window.location.href = data.url; // hand off to Stripe's hosted Checkout page
+  }catch(err){
+    console.error('Stripe checkout error:', err);
+    if(errBox){
+      errBox.textContent = "Couldn't start checkout — please try again in a moment.";
+      errBox.style.display = 'block';
+    }
+    if(btn){ btn.disabled = false; btn.textContent = 'Continue to Payment'; }
+  }
+}
+
+// If Stripe redirected back here after a successful checkout, reflect that.
+(function checkStripeRedirectResult(){
+  const params = new URLSearchParams(window.location.search);
+  if(params.get('checkout') === 'success'){
+    const plan = params.get('plan');
+    if(plan && PLAN_INFO[plan]) setPlan(plan);
+    // Clean the URL so refreshing doesn't re-trigger this.
+    window.history.replaceState({}, '', window.location.pathname);
+  }
+})();
+
+updateAccountBadge();
+
+// Founding Member promo — reflects Stripe's own coupon redemption count,
+// so it can't be gamed by refreshing the page or clearing local storage.
+async function refreshPromoBanner(){
+  const el = document.getElementById('promoCount');
+  const banner = document.getElementById('promoBanner');
+  if(!el) return;
+  try{
+    const res = await fetch('/.netlify/functions/get-promo-status');
+    if(!res.ok) throw new Error('bad response');
+    const data = await res.json();
+    if(!data.active){
+      banner.style.display = 'none';
+      return;
+    }
+    el.textContent = `${data.remaining} of ${data.max} spots left`;
+  }catch(err){
+    // Most likely: not deployed on Netlify yet, or coupon "FOUNDING50" not
+    // created in Stripe yet. Fail quietly rather than showing a broken count.
+    banner.style.display = 'none';
+  }
+}
+refreshPromoBanner();
+
+/* =========================================================
+   AI ADVISOR — calls Claude directly from the browser.
+   Educational only: system prompt keeps responses grounded in
+   the drafted brief and away from personalized advice, single-
+   stock picks, or tax/legal determinations.
+   ========================================================= */
+function escapeHtml(s){
+  return String(s).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function textToHtml(s){
+  return escapeHtml(s).split(/\n{2,}/).map(p=>`<p>${p.replace(/\n/g,'<br>')}</p>`).join('');
+}
+
+function briefContextSummary(){
+  if(!currentAlloc) return 'No brief has been drafted yet in this session.';
+  return `Goal: ${currentGoal}. Years to goal: ${currentYears}. Age: ${currentAge}. Risk Score: ${currentRiskScore}/100 (${riskTier(currentRiskScore)}). `
+    + `Allocation: ${Math.round(currentAlloc.usEq)}% US equity, ${Math.round(currentAlloc.intlEq)}% international equity, ${Math.round(currentAlloc.bonds)}% bonds, ${Math.round(currentAlloc.cash)}% cash. `
+    + `Lump sum: $${currentLump}. Monthly contribution: $${currentMonthly}. Reference CPI: ${MARKET_DATA.cpiYoY}%. 10Y Treasury: ${MARKET_DATA.treasury10y}%.`;
+}
+
+const ADVISOR_SYSTEM_PROMPT = `You are the AI Advisor inside Kinlgali Investing, an education-only financial planning tool — you are NOT a registered investment adviser, and nothing you say is personalized investment, legal, or tax advice. Answer using general, widely-known financial planning principles, keeping answers concise (3-6 short paragraphs max) and plain-spoken. Never recommend individual company stocks — only asset classes or diversified index funds/ETFs. Always keep in mind the user's drafted brief context if provided. If a question falls outside general education (e.g. asks you to guarantee returns, predict specific prices, or give personalized tax/legal conclusions), say so plainly and suggest a licensed professional. Do not use markdown headers or bullet lists heavy with asterisks — write in plain prose paragraphs.`;
+
+async function callClaude(userText, contextNote){
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      model: "claude-sonnet-4-6",
+      max_tokens: 700,
+      system: ADVISOR_SYSTEM_PROMPT,
+      messages: [
+        {role:"user", content: `Context on my current drafted brief: ${contextNote}\n\nMy question: ${userText}`}
+      ]
+    })
+  });
+  if(!res.ok) throw new Error('AI request failed ('+res.status+')');
+  const data = await res.json();
+  const text = (data.content||[]).map(b=>b.text||'').join('\n').trim();
+  return text || "I wasn't able to generate a response — try rephrasing your question.";
+}
+
+function sendAdvisorSuggestion(el){
+  document.getElementById('aiChatInput').value = el.textContent;
+  sendAdvisorMessage();
+}
+
+async function sendAdvisorMessage(){
+  const input = document.getElementById('aiChatInput');
+  const text = input.value.trim();
+  if(!text) return;
+  const wrap = document.getElementById('aiChatWrap');
+  const btn = document.getElementById('aiSendBtn');
+
+  wrap.insertAdjacentHTML('beforeend', `<div class="ai-msg user"><div class="who">You</div><p>${escapeHtml(text)}</p></div>`);
+  input.value = '';
+  btn.disabled = true;
+  const thinkingId = 'thinking-'+Date.now();
+  wrap.insertAdjacentHTML('beforeend', `<div class="ai-msg" id="${thinkingId}"><div class="who">Advisor</div><p class="ai-thinking">Thinking…</p></div>`);
+  wrap.scrollTop = wrap.scrollHeight;
+
+  try{
+    const reply = await callClaude(text, briefContextSummary());
+    document.getElementById(thinkingId).innerHTML = `<div class="who">Advisor</div>${textToHtml(reply)}`;
+  }catch(err){
+    console.error('AI advisor error:', err);
+    document.getElementById(thinkingId).innerHTML = `<div class="who">Advisor</div><p>Something went wrong reaching the AI service — please try again in a moment.</p>`;
+  }finally{
+    btn.disabled = false;
+    wrap.scrollTop = wrap.scrollHeight;
+  }
+}
+
+async function generateQuarterlyReview(){
+  const entries = window._briefHistoryCache || [];
+  const box = document.getElementById('reviewBox');
+  const btn = document.getElementById('reviewBtn');
+  if(entries.length===0){ alert('Draft and save at least one brief first.'); return; }
+
+  box.style.display = 'block';
+  box.innerHTML = '<p class="ai-thinking">Generating your quarterly review…</p>';
+  btn.disabled = true;
+
+  const latestByGoal = {};
+  entries.forEach(e=>{ if(!latestByGoal[e.goal]) latestByGoal[e.goal]=e; });
+  const summary = Object.values(latestByGoal).map(e=>
+    `${goalLabelMap[e.goal]||e.goal}: ${e.years} yrs to go, $${Math.round(e.monthly)}/mo, Risk Score ${e.riskScore}, allocation ${Math.round(e.alloc.usEq)}% US eq / ${Math.round(e.alloc.intlEq)}% intl eq / ${Math.round(e.alloc.bonds)}% bonds / ${Math.round(e.alloc.cash)}% cash, simulated median value $${Math.round(e.totalValue)}.`
+  ).join('\n');
+
+  const prompt = `Write a short, plain-language quarterly portfolio review for a user tracking these goals in an education-only planning tool. For each goal, briefly note whether the allocation looks reasonably aligned with its timeline, and mention one general consideration to think about before the next review (e.g. rebalancing, contribution amount, or diversification) — without giving a specific buy/sell instruction. Keep the whole thing under 300 words, in flowing paragraphs, one per goal, plus a one-sentence closing note. Here is the data:\n\n${summary}`;
+
+  try{
+    const reply = await callClaude(prompt, 'This is a multi-goal quarterly review request, not a single-brief question.');
+    box.innerHTML = `<h5>Quarterly Review — ${new Date().toLocaleDateString('en-US',{month:'long', year:'numeric'})}</h5>${textToHtml(reply)}<div class="disclaimer-inline" style="margin-top:14px;">AI-generated, educational only — not a personalized recommendation, and not reviewed by a human before being shown to you.</div>`;
+  }catch(err){
+    console.error('Quarterly review error:', err);
+    box.innerHTML = `<p>Something went wrong generating the review — please try again in a moment.</p>`;
+  }finally{
+    btn.disabled = false;
+  }
+}
+
+</script>
+
+</body>
+</html>
