@@ -9,10 +9,10 @@
 <meta property="og:title" content="Kinlgali Investing — Private Advisory">
 <meta property="og:description" content="State your goal and timeline. Get a drafted account structure and allocation model in the style of a formal planning brief.">
 <meta property="og:type" content="website">
-<meta name="theme-color" content="#8A6A2E">
+<meta name="theme-color" content="#22282F">
 <link rel="manifest" href="/manifest.json">
-<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
-<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Kinlgali">
@@ -418,7 +418,7 @@ input[type=range]{flex:1; accent-color:var(--brass-fill); height:4px;}
 .disclaimer-inline{font-size:12.5px; color:var(--ink-soft); font-style:italic; margin-top:14px; line-height:1.7;}
 
 /* ---------- PRICING ---------- */
-.tier-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--hair); border:1px solid var(--hair);}
+.tier-grid{display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--hair); border:1px solid var(--hair);}
 .tier{background:var(--panel); padding:30px 22px; position:relative; display:flex; flex-direction:column;}
 .tier.featured{background:#FBF1DA; border-top:3px solid var(--brass);}
 .tier.current{outline:2px solid var(--brass-fill); outline-offset:-2px;}
@@ -699,7 +699,7 @@ footer{border-top:1px solid var(--hair); padding:44px 48px; }
 .compare-table-wrap{overflow-x:auto;}
 table.compare-table{width:100%; border-collapse:collapse; margin-top:14px; font-size:13.5px;}
 table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:1px solid var(--hair); text-align:left;}
-/* ---------- USAGE LIMIT (Weekly free tier) ---------- */
+/* ---------- USAGE LIMIT (Free tier) ---------- */
 .usage-panel{margin-top:4px; border:1px solid var(--hair); background:var(--panel); padding:16px 18px;}
 .usage-row{display:flex; justify-content:space-between; align-items:baseline; gap:12px; flex-wrap:wrap;}
 .usage-label{font-size:11.5px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft);}
@@ -726,6 +726,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
   import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getFirestore, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyDE2Tx3eSvLFtarYJ5jSMPInCyLdK1BPDM",
@@ -741,13 +742,31 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
   isSupported().then(ok => { if(ok) getAnalytics(app); }).catch(()=>{});
 
   const auth = getAuth(app);
+  const db = getFirestore(app);
   const googleProvider = new GoogleAuthProvider();
+  const historyDocRef = (uid) => doc(db, 'users', uid, 'private', 'briefHistory');
 
   window.__firebaseGoogleSignIn = function(){
     return signInWithPopup(auth, googleProvider).then((result)=>{
       const user = result.user;
-      return { name: user.displayName || 'Google User', email: user.email || '' };
+      return { uid: user.uid, name: user.displayName || 'Google User', email: user.email || '' };
     });
+  };
+  window.__firebaseHistory = {
+    async get(uid){
+      const snap = await getDoc(historyDocRef(uid));
+      const data = snap.exists() ? snap.data() : {};
+      return Array.isArray(data.entries) ? data.entries : [];
+    },
+    async set(uid, entries){
+      await setDoc(historyDocRef(uid), {
+        entries: entries.slice(0, 25),
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+    },
+    async clear(uid){
+      await deleteDoc(historyDocRef(uid));
+    }
   };
 </script>
 </head>
@@ -898,7 +917,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
       <div class="tab-item" data-target="brief">Draft a Strategy</div>
       <div class="tab-item" data-target="historySection">History</div>
       <div class="tab-item" data-target="dashboardSection">Dashboard</div>
-      <div class="tab-item" data-target="aiAdvisorSection">AI Advisor</div>
+      <div class="tab-item" data-target="aiAdvisorSection">AI Copilot</div>
       <div class="tab-item" data-target="pricing">Pricing</div>
       <div class="tab-item" data-target="priceLookup">Price Lookup</div>
       <div class="tab-item" data-target="tutorial">Getting Started</div>
@@ -907,9 +926,9 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
   </div>
 
   <div class="plan-bar">
-    <div class="plan-bar-label">Viewing As — <span id="planLabel" style="color:var(--brass);">Weekly Plan</span></div>
+    <div class="plan-bar-label">Viewing As — <span id="planLabel" style="color:var(--brass);">Free Plan</span></div>
     <div class="plan-switch" id="planSwitch">
-      <div class="plan-chip active" data-plan="weekly">Weekly</div>
+      <div class="plan-chip active" data-plan="weekly">Free</div>
       <div class="plan-chip" data-plan="monthly">Monthly</div>
       <div class="plan-chip" data-plan="yearly">Yearly</div>
     </div>
@@ -929,6 +948,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
     <p class="lede">State your objective and your timeline. We will draft the account structure and allocation model suited to it — the same discipline a private planning desk would apply, delivered as a formal brief in moments.</p>
     <div class="hero-actions">
       <button class="btn btn-solid" onclick="document.getElementById('brief').scrollIntoView({behavior:'smooth'})">Begin Your Consultation</button>
+      <button class="btn install-btn" style="display:none;" onclick="triggerInstallPrompt()">Install App</button>
       <button class="btn-ghost" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Membership Terms →</button>
     </div>
   </div>
@@ -939,22 +959,22 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
       <div class="exhibit-mark mono">ABOUT</div>
       <h2>The Desk's Approach</h2>
     </div>
-    <p class="section-sub">Kinlgali Investing is an education-only planning tool, built to think the way a formal advisory desk would — starting from your goal and timeline, not from a hot tip.</p>
+    <p class="section-sub">Kinlgali Investing is an education-only planning tool. The free version gives every user a basic goal-based strategy and an initial portfolio recommendation; premium membership turns that starting point into an ongoing review desk that evolves with their financial life.</p>
     <div class="about-grid">
       <div class="about-cell">
         <div class="mk">Principle 01</div>
-        <h4>General, not personal</h4>
-        <p>Every brief comes from published planning principles, not your full financial picture. It's a starting point for your own research, not a final answer.</p>
+        <h4>Free starting point</h4>
+        <p>Free users receive a basic strategy from their stated goal, timeline, contribution level, and risk comfort. Premium users can keep that plan under review as their goals and market conditions change.</p>
       </div>
       <div class="about-cell">
         <div class="mk">Principle 02</div>
-        <h4>Asset classes, not stock picks</h4>
-        <p>No single-stock recommendations, ever. Diversified index funds carry less uncompensated risk than betting on one company — see Exhibit E for specifics.</p>
+        <h4>Portfolio first, not stock tips</h4>
+        <p>The initial recommendation starts with diversified asset classes and index-fund categories. Premium insights focus on buy, hold, sell, rebalance, and tax-efficiency considerations around the user's own portfolio context.</p>
       </div>
       <div class="about-cell">
         <div class="mk">Principle 03</div>
-        <h4>The decision stays yours</h4>
-        <p>Nothing here opens an account or moves money on your behalf. Every brief ends the same way it should: with you deciding what to actually do.</p>
+        <h4>Ongoing guidance, user control</h4>
+        <p>The AI Financial Copilot can monitor progress, explain market events, and surface next-step ideas, but nothing here opens accounts or moves money on a user's behalf.</p>
       </div>
     </div>
   </section>
@@ -1172,7 +1192,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
       <p class="section-sub">A closer breakdown of each asset class into the sub-categories a diversified index approach is typically built from.</p>
       <div class="gated" id="fundDetailUnlocked"><div id="fundDetailBody"></div></div>
       <div class="locked-card" id="fundDetailLocked">
-        <div class="locked-tag">Monthly & Yearly Members Only</div>
+        <div class="locked-tag">Premium Members Only</div>
         <h4 class="serif">Sub-category breakdown is reserved for paying members</h4>
         <p>See each asset class split into large-cap vs. small-cap, developed vs. emerging markets, and short vs. aggregate bond exposure.</p>
         <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Membership Terms</button>
@@ -1185,16 +1205,16 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
         <div class="exhibit-mark mono">EXHIBIT F</div>
         <h2>Rebalancing Schedule</h2>
       </div>
-      <p class="section-sub">How the target allocation is expected to shift as the target date approaches, with a suggested review cadence.</p>
+      <p class="section-sub">Quarterly rebalancing recommendations and review checkpoints that help the portfolio stay aligned as time, goals, and market conditions change.</p>
       <div class="gated" id="rebalUnlocked">
         <table class="rebal-table" id="rebalTable"></table>
         <div class="next-review" id="nextReview"></div>
       </div>
       <div class="locked-card" id="rebalLocked">
-        <div class="locked-tag">Yearly Members Only</div>
-        <h4 class="serif">The forward glide-path schedule is reserved for the Yearly retainer</h4>
-        <p>See how your allocation is expected to shift year over year, and when your next review is due.</p>
-        <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Yearly Terms</button>
+        <div class="locked-tag">Premium Members Only</div>
+        <h4 class="serif">Rebalancing recommendations are reserved for Premium</h4>
+        <p>See quarterly review checkpoints, target-allocation drift, and suggested rebalance windows for the portfolio you drafted.</p>
+        <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Premium Terms</button>
       </div>
     </section>
 
@@ -1233,10 +1253,10 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
         <div class="disclaimer-inline">Uses the same asset-class return assumptions as Exhibit D, applied in reverse with annual withdrawals instead of contributions, and inflates the withdrawal amount each year by the reference CPI figure above. This is a simplified model — it does not account for taxes, required minimum distributions, Social Security, or changing spending needs in retirement.</div>
       </div>
       <div class="locked-card" id="withdrawLocked">
-        <div class="locked-tag">Yearly Members Only</div>
-        <h4 class="serif">Withdrawal modeling is reserved for the Yearly retainer</h4>
-        <p>Test how long this brief's projected balance would likely last once you start drawing it down.</p>
-        <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Yearly Terms</button>
+        <div class="locked-tag">Premium Members Only</div>
+        <h4 class="serif">Retirement and income modeling are reserved for Premium</h4>
+        <p>Test drawdowns, passive-income scenarios, and inflation-adjusted retirement outcomes from the portfolio you drafted.</p>
+        <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Premium Terms</button>
       </div>
     </section>
 
@@ -1266,20 +1286,20 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
       <div class="compare-table-wrap"><table class="compare-table" id="compareTable" style="display:none;"></table></div>
     </div>
     <div class="locked-card" id="historyLocked">
-      <div class="locked-tag">Monthly & Yearly Members Only</div>
+      <div class="locked-tag">Premium Members Only</div>
       <h4 class="serif">Brief history is reserved for paying members</h4>
-      <p>Every brief you draft on the Monthly or Yearly plan is saved automatically, so you can revisit or reload it later without starting over.</p>
+      <p>Every brief you draft on a Premium plan is saved automatically, so you can revisit or reload it later without starting over.</p>
       <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Membership Terms</button>
     </div>
   </section>
 
-  <!-- ============ MULTI-GOAL DASHBOARD (Yearly) ============ -->
+  <!-- ============ MULTI-GOAL DASHBOARD (Premium) ============ -->
   <section id="dashboardSection">
     <div class="section-head">
       <div class="exhibit-mark mono">EXHIBIT H</div>
       <h2>Multi-Goal Dashboard</h2>
     </div>
-    <p class="section-sub">Track every objective — education, retirement, a home — side by side, each drafted and reviewed independently.</p>
+    <p class="section-sub">Track retirement, net worth, passive income, and major life goals side by side, with progress signals that turn a one-time draft into a living financial plan.</p>
     <div class="gated" id="dashUnlocked">
       <div class="dash-grid" id="dashGrid"></div>
 
@@ -1291,38 +1311,38 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
 
       <div class="section-head" style="margin-top:36px;">
         <div class="exhibit-mark mono">AI REVIEW</div>
-        <h2 style="font-size:22px;">AI-Generated Quarterly Review</h2>
+        <h2 style="font-size:22px;">AI-Powered Portfolio Review</h2>
       </div>
-      <p class="section-sub">Have the desk's AI assistant write a short narrative review across every goal on your dashboard — plain-language, referencing your actual numbers, and just as bound by the educational-only disclaimers as the rest of this tool.</p>
-      <button class="btn btn-solid" onclick="generateQuarterlyReview()" id="reviewBtn">Generate Quarterly Review</button>
+      <p class="section-sub">Have the AI Financial Copilot write a plain-language review across every goal, including goal progress, rebalancing considerations, inflation context, and what recent market conditions may mean for your portfolio.</p>
+      <button class="btn btn-solid" onclick="generateQuarterlyReview()" id="reviewBtn">Generate Portfolio Review</button>
       <div class="ai-review-box" id="reviewBox" style="display:none;"></div>
     </div>
     <div class="locked-card" id="dashLocked">
-      <div class="locked-tag">Yearly Members Only</div>
-      <h4 class="serif">The multi-goal dashboard is reserved for the Yearly retainer</h4>
-      <p>Draft and track more than one objective at once — your desk keeps each goal's latest brief in a single view.</p>
-      <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Yearly Terms</button>
+      <div class="locked-tag">Premium Members Only</div>
+      <h4 class="serif">The living financial dashboard is reserved for Premium</h4>
+      <p>Track goals, net worth, retirement progress, dividend income, and saved portfolio reviews in one evolving view.</p>
+      <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Premium Terms</button>
     </div>
   </section>
 
-  <!-- ============ AI ADVISOR (Monthly / Yearly) ============ -->
+  <!-- ============ AI FINANCIAL COPILOT (Premium) ============ -->
   <section id="aiAdvisorSection">
     <div class="section-head">
       <div class="exhibit-mark mono">EXHIBIT L</div>
-      <h2>Ask the AI Advisor</h2>
+      <h2>AI Financial Copilot</h2>
     </div>
-    <p class="section-sub">Ask questions about your drafted brief in plain language. This is a conversational layer over the same educational-only tool — not a licensed advisor, and it doesn't see anything about you beyond the brief you drafted above.</p>
+    <p class="section-sub">Premium members get a 24/7 conversational coach that answers questions using the user's drafted brief, saved goals, contribution assumptions, and portfolio context. It can explain market events, goal progress, rebalancing ideas, tax-efficiency concepts, and what-if scenarios in plain English.</p>
     <div class="gated" id="aiAdvisorUnlocked">
       <div class="ai-suggest-row">
-        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">Why so much in bonds?</div>
-        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">What if I retire 5 years earlier?</div>
-        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">Is my risk score too aggressive?</div>
-        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">How does inflation affect this plan?</div>
+        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">Am I on track for retirement?</div>
+        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">Should I buy, hold, or rebalance?</div>
+        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">What would $50 more per month change?</div>
+        <div class="ai-suggest-chip" onclick="sendAdvisorSuggestion(this)">How do recent market events affect me?</div>
       </div>
       <div class="ai-chat-wrap" id="aiChatWrap">
         <div class="ai-msg">
           <div class="who">Advisor</div>
-          <p>Draft a brief above, then ask me anything about it — allocation, risk score, the simulation ranges, or general planning concepts.</p>
+          <p>Draft a brief above, then ask me anything about your plan: goal progress, allocation drift, buy/hold/sell considerations, tax efficiency, retirement timing, inflation, or major life-event scenarios.</p>
         </div>
       </div>
       <div class="ai-input-row">
@@ -1332,9 +1352,9 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
       <div class="disclaimer-inline" style="margin-top:12px;">AI-generated responses are educational only, drawn from general planning principles and your drafted brief — not personalized investment, legal, or tax advice, and not reviewed by a human before being shown to you. Verify anything material with a licensed professional.</div>
     </div>
     <div class="locked-card" id="aiAdvisorLocked">
-      <div class="locked-tag">Monthly & Yearly Members Only</div>
-      <h4 class="serif">The AI Advisor is reserved for paying members</h4>
-      <p>Ask follow-up questions about your drafted brief in plain language, on the Monthly or Yearly plan.</p>
+      <div class="locked-tag">Premium Members Only</div>
+      <h4 class="serif">The AI Financial Copilot is reserved for Premium</h4>
+      <p>Ask follow-up questions in plain language, receive portfolio-aware explanations, and turn saved goals into a 24/7 financial coaching experience.</p>
       <button class="btn" onclick="document.getElementById('pricing').scrollIntoView({behavior:'smooth'})">View Membership Terms</button>
     </div>
   </section>
@@ -1512,8 +1532,8 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
         <p>That's how it's designed to work on a live version of this product — cancel anytime during the 7-day (Monthly) or 1-month (Yearly) trial window and you won't be billed. This prototype doesn't enforce real billing dates.</p>
       </details>
       <details class="faq-item">
-        <summary>What happens to my saved briefs if I downgrade to Weekly?</summary>
-        <p>Nothing is deleted. Weekly just stops showing Exhibit G and stops saving new briefs while you're on it — your existing history reappears the moment you're back on Monthly or Yearly.</p>
+        <summary>What happens to my saved briefs if I downgrade to Free?</summary>
+        <p>Nothing is deleted. Free stops showing premium history and stops saving new briefs while you're on it — your existing history reappears the moment you're back on Premium Monthly or Premium Yearly.</p>
       </details>
       <details class="faq-item">
         <summary>Which specific stocks should I buy?</summary>
@@ -1528,7 +1548,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
       <div class="exhibit-mark mono">TERMS</div>
       <h2>Continued Counsel</h2>
     </div>
-    <p class="section-sub">Weekly stays free forever with the basics. Monthly and Yearly open with a short trial, then bill automatically — cancel anytime before the trial ends and you won't be charged.</p>
+    <p class="section-sub">The Free plan gives every user a basic personalized strategy and initial portfolio recommendation. Premium Monthly and Yearly turn the platform into an ongoing financial service with AI reviews, market-aware alerts, portfolio monitoring, and goal tracking that continue after the first draft.</p>
 
     <div class="promo-banner" id="promoBanner">
       <div class="promo-text"><strong>Founding Member Offer</strong> — the first 500 customers get 50% off their first payment on Monthly or Yearly.</div>
@@ -1537,14 +1557,15 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
 
     <div class="tier-grid" id="tierGrid">
       <div class="tier" data-plan="weekly">
-        <div class="tier-name mono">Weekly</div>
+        <div class="tier-name mono">Free</div>
         <div class="tier-price serif">Free <span>/ forever</span></div>
-        <div class="tier-save">Bare minimum, no cost</div>
+        <div class="tier-save">Initial recommendation, no cost</div>
         <ul>
-          <li>Strategy drafting tool (Exhibits A–D)</li>
-          <li>Historical Stress Tests</li>
+          <li>Basic personalized investment strategy</li>
+          <li>Initial portfolio recommendation and allocation model</li>
+          <li>Simulated outcomes, stress tests, and export tools</li>
           <li>10 free drafts every 5 hours</li>
-          <li>No history, dashboard, fund detail, or AI Advisor</li>
+          <li>No ongoing Copilot, alerts, history, or portfolio monitoring</li>
         </ul>
         <button class="btn btn-block" onclick="handlePlanSelect('weekly')">Start Free</button>
       </div>
@@ -1554,10 +1575,12 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
         <div class="tier-price serif">$14.99 <span>/ mo</span></div>
         <div class="tier-save mono">7-day free trial included</div>
         <ul>
-          <li>Everything in Weekly</li>
-          <li>Saved Brief History — every brief kept for later</li>
-          <li>Fund-Category Detail breakdown</li>
-          <li>AI Advisor — ask questions about your brief</li>
+          <li>Everything in Free</li>
+          <li>AI Financial Copilot with portfolio-aware Q&A</li>
+          <li>Weekly portfolio reviews and market briefings</li>
+          <li>Quarterly rebalancing and buy/hold/sell insights</li>
+          <li>Goal progress, net worth, and financial health reports</li>
+          <li>Tax-efficiency, dividend, and passive income forecasting</li>
           <li>Card required — billed after 7 days</li>
         </ul>
         <button class="btn btn-block" onclick="handlePlanSelect('monthly')">Start 7-Day Trial</button>
@@ -1569,11 +1592,12 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
         <div class="tier-price serif">$214.99 <span>/ yr</span></div>
         <div class="tier-save mono">1-month free trial included</div>
         <ul>
-          <li>Everything in Monthly</li>
-          <li>Multi-Goal Dashboard, Milestones & AI Quarterly Review</li>
-          <li>Rebalancing Schedule & review reminders</li>
-          <li>Retirement Withdrawal Modeling</li>
-          <li>Annual goal re-drafting session</li>
+          <li>Everything in Premium Monthly</li>
+          <li>Annual savings versus monthly billing</li>
+          <li>Portfolio stress testing and Monte Carlo scenario planning</li>
+          <li>Major life-event planning for home, college, and retirement</li>
+          <li>Investing challenges, courses, badges, and leaderboards</li>
+          <li>Early access to new premium tools</li>
           <li>Card required — billed after 1 month</li>
         </ul>
         <button class="btn btn-solid btn-block" onclick="handlePlanSelect('yearly')">Start 1-Month Trial</button>
@@ -2327,7 +2351,7 @@ async function draftStrategy(){
     output.classList.add('visible');
     output.scrollIntoView({behavior:'smooth', block:'start'});
 
-    // Premium: fund-category detail + rebalancing schedule for this brief
+    // Premium: fund-category detail + ongoing rebalancing schedule for this brief
     renderFundDetail(alloc, lump, monthly);
     renderRebalanceSchedule(goal, years, alloc);
 
@@ -2569,10 +2593,10 @@ function renderReturnChart(closes, dates, containerId, isUp){
    ========================================================= */
 let currentPlan = 'weekly';
 const goalLabelMap = {education:"Child's Education", retirement:'Retirement', home:'Home Down Payment', emergency:'Emergency Reserve', wealth:'Wealth Accumulation', major:'Major Purchase', other:'Other'};
-const planLabelMap = {weekly:'Weekly Plan', monthly:'Monthly Plan', yearly:'Yearly Plan'};
+const planLabelMap = {weekly:'Free Plan', monthly:'Premium Monthly', yearly:'Premium Yearly'};
 
 function hasHistory(plan){ return plan==='monthly' || plan==='yearly'; }
-function hasFullPremium(plan){ return plan==='yearly'; } // fund detail, rebalancing, multi-goal
+function hasFullPremium(plan){ return plan==='monthly' || plan==='yearly'; } // premium advisor, dashboard, rebalancing, scenario tools
 
 function setPlan(plan){
   currentPlan = plan;
@@ -2758,7 +2782,7 @@ async function loadHistory(){
   }catch(e){ entries = []; }
 
   if(entries.length===0){
-    list.innerHTML = `<div class="empty-state">No briefs saved yet for ${currentUser.name}. Draft a strategy above while on the Monthly or Yearly plan to begin building your history.</div>`;
+    list.innerHTML = `<div class="empty-state">No briefs saved yet for ${currentUser.name}. Draft a strategy above while on Premium Monthly or Premium Yearly to begin building your history.</div>`;
   } else {
     list.innerHTML = entries.map((e,i)=>{
       const d = new Date(e.ts).toLocaleDateString('en-US',{year:'numeric',month:'short',day:'numeric'});
@@ -2961,7 +2985,7 @@ document.addEventListener('keydown', (e)=>{
    the flow for demonstration purposes only.
    ========================================================= */
 const PLAN_INFO = {
-  weekly:  {name:'Weekly (Free)', price:'Free', needsCheckout:false},
+  weekly:  {name:'Free', price:'Free', needsCheckout:false},
   monthly: {name:'Monthly', price:'$14.99 / mo — first 7 days free', needsCheckout:true, trialDays:7, trialLabel:'7-day'},
   yearly:  {name:'Yearly', price:'$214.99 / yr — first month free', needsCheckout:true, trialDays:30, trialLabel:'1-month'}
 };
@@ -3115,31 +3139,45 @@ if('serviceWorker' in navigator){
 }
 
 let deferredInstallPrompt = null;
+function isStandaloneApp(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function updateInstallButtons(show){
+  document.querySelectorAll('.install-btn').forEach(btn=>{
+    btn.style.display = show ? 'inline-block' : 'none';
+  });
+}
+
 window.addEventListener('beforeinstallprompt', (e)=>{
   e.preventDefault();
   deferredInstallPrompt = e;
-  const btn = document.getElementById('installBtn');
-  if(btn) btn.style.display = 'inline-block';
+  if(!isStandaloneApp()) updateInstallButtons(true);
 });
 
 async function triggerInstallPrompt(){
-  const btn = document.getElementById('installBtn');
+  if(isStandaloneApp()){
+    updateInstallButtons(false);
+    alert('Kinlgali Investing is already installed on this device.');
+    return;
+  }
   if(!deferredInstallPrompt){
     // Already installed, or the browser doesn't support one-click install
     // (notably iOS Safari) — point people to the manual add-to-home-screen flow.
-    alert('To install: open your browser menu and choose "Add to Home Screen" (iOS Safari) or "Install App" (Android Chrome / desktop Chrome address-bar icon).');
+    alert('To install: open your browser menu and choose "Add to Home Screen" on iOS Safari, or "Install App" from Chrome or Edge when the install option appears.');
     return;
   }
   deferredInstallPrompt.prompt();
   const choice = await deferredInstallPrompt.userChoice;
-  if(choice.outcome === 'accepted' && btn) btn.style.display = 'none';
+  if(choice.outcome === 'accepted') updateInstallButtons(false);
   deferredInstallPrompt = null;
 }
 
 window.addEventListener('appinstalled', ()=>{
-  const btn = document.getElementById('installBtn');
-  if(btn) btn.style.display = 'none';
+  updateInstallButtons(false);
   deferredInstallPrompt = null;
+});
+window.addEventListener('DOMContentLoaded', ()=>{
+  if(isStandaloneApp()) updateInstallButtons(false);
 });
 
 // Founding Member promo — reflects Stripe's own coupon redemption count,
@@ -3185,7 +3223,7 @@ function briefContextSummary(){
     + `Lump sum: $${currentLump}. Monthly contribution: $${currentMonthly}. Reference CPI: ${MARKET_DATA.cpiYoY}%. 10Y Treasury: ${MARKET_DATA.treasury10y}%.`;
 }
 
-const ADVISOR_SYSTEM_PROMPT = `You are the AI Advisor inside Kinlgali Investing, an education-only financial planning tool — you are NOT a registered investment adviser, and nothing you say is personalized investment, legal, or tax advice. Answer using general, widely-known financial planning principles, keeping answers concise (3-6 short paragraphs max) and plain-spoken. Never recommend individual company stocks — only asset classes or diversified index funds/ETFs. Always keep in mind the user's drafted brief context if provided. If a question falls outside general education (e.g. asks you to guarantee returns, predict specific prices, or give personalized tax/legal conclusions), say so plainly and suggest a licensed professional. Do not use markdown headers or bullet lists heavy with asterisks — write in plain prose paragraphs.`;
+const ADVISOR_SYSTEM_PROMPT = `You are the AI Financial Copilot inside Kinlgali Investing, an education-only financial planning tool — you are NOT a registered investment adviser, and nothing you say is personalized investment, legal, or tax advice. Answer using general, widely-known financial planning principles, keeping answers concise (3-6 short paragraphs max) and plain-spoken. Never recommend individual company stocks — only asset classes or diversified index funds/ETFs. Always keep in mind the user's drafted brief context if provided. If a question falls outside general education (e.g. asks you to guarantee returns, predict specific prices, or give personalized tax/legal conclusions), say so plainly and suggest a licensed professional. Do not use markdown headers or bullet lists heavy with asterisks — write in plain prose paragraphs.`;
 
 async function callClaude(userText, contextNote){
   const res = await fetch("https://api.anthropic.com/v1/messages", {
