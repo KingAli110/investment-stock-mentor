@@ -10,6 +10,13 @@
 <meta property="og:description" content="State your goal and timeline. Get a drafted account structure and allocation model in the style of a formal planning brief.">
 <meta property="og:type" content="website">
 <meta name="theme-color" content="#8A6A2E">
+<link rel="manifest" href="/manifest.json">
+<link rel="icon" type="image/png" sizes="192x192" href="/icons/icon-192.png">
+<link rel="apple-touch-icon" href="/icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kinlgali">
+<meta name="mobile-web-app-capable" content="yes">
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
@@ -879,6 +886,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
     <nav>
       <div class="wordmark">KINLGALI<span>INVESTING</span></div>
       <div class="nav-backronym mono">Knowledge • Insight • Navigation • Learning • Growth • Analytics • Leadership • Investing</div>
+      <button class="btn install-btn" id="installBtn" style="display:none; padding:9px 16px; font-size:11px; margin-right:10px;" onclick="triggerInstallPrompt()">Install App</button>
       <div class="account-badge" id="accountBadge">
         <div class="nav-tag">Private Advisory · Est. MMXXIV</div>
         <button class="btn" style="padding:9px 18px; font-size:11px;" onclick="openAuthModal(null)">Sign In</button>
@@ -3094,6 +3102,45 @@ async function submitCheckout(){
 })();
 
 updateAccountBadge();
+
+/* =========================================================
+   PWA — installability + offline app shell
+   ========================================================= */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', ()=>{
+    navigator.serviceWorker.register('/sw.js').catch(err=>{
+      console.warn('Service worker registration failed:', err);
+    });
+  });
+}
+
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e)=>{
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = 'inline-block';
+});
+
+async function triggerInstallPrompt(){
+  const btn = document.getElementById('installBtn');
+  if(!deferredInstallPrompt){
+    // Already installed, or the browser doesn't support one-click install
+    // (notably iOS Safari) — point people to the manual add-to-home-screen flow.
+    alert('To install: open your browser menu and choose "Add to Home Screen" (iOS Safari) or "Install App" (Android Chrome / desktop Chrome address-bar icon).');
+    return;
+  }
+  deferredInstallPrompt.prompt();
+  const choice = await deferredInstallPrompt.userChoice;
+  if(choice.outcome === 'accepted' && btn) btn.style.display = 'none';
+  deferredInstallPrompt = null;
+}
+
+window.addEventListener('appinstalled', ()=>{
+  const btn = document.getElementById('installBtn');
+  if(btn) btn.style.display = 'none';
+  deferredInstallPrompt = null;
+});
 
 // Founding Member promo — reflects Stripe's own coupon redemption count,
 // so it can't be gamed by refreshing the page or clearing local storage.
