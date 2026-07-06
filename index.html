@@ -725,7 +725,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
   // authorized by default; a sandboxed preview domain typically is not).
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-app.js";
   import { getAnalytics, isSupported } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-analytics.js";
-  import { getAuth, GoogleAuthProvider, signInWithPopup } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
+  import { getAuth, GoogleAuthProvider, signInWithPopup, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-auth.js";
   import { getFirestore, doc, getDoc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore.js";
 
   const firebaseConfig = {
@@ -745,6 +745,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
   const db = getFirestore(app);
   const googleProvider = new GoogleAuthProvider();
   const historyDocRef = (uid) => doc(db, 'users', uid, 'private', 'briefHistory');
+  const usageDocRef = (uid) => doc(db, 'usageLimits', uid);
 
   window.__firebaseGoogleSignIn = function(){
     return signInWithPopup(auth, googleProvider).then((result)=>{
@@ -767,6 +768,38 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
     async clear(uid){
       await deleteDoc(historyDocRef(uid));
     }
+  };
+  window.__firebaseUsage = {
+    async get(uid){
+      const snap = await getDoc(usageDocRef(uid));
+      return snap.exists() ? snap.data() : null;
+    },
+    async set(uid, state){
+      await setDoc(usageDocRef(uid), state);
+    }
+  };
+
+  // Every visitor gets a stable Firebase Auth uid — either their real
+  // signed-in identity (Google), or an anonymous session if they never
+  // sign in. Anonymous sessions persist across reloads on the same
+  // browser (Firebase stores this in IndexedDB), which is exactly what
+  // the free-tier usage limiter needs: a stable per-visitor identity
+  // without requiring an account. Waits for Firebase's own auth-state
+  // restoration first, so it doesn't spin up a *new* anonymous user on
+  // every reload if one already exists for this browser.
+  let _uidPromise = null;
+  window.__ensureFirebaseUid = function(){
+    if(_uidPromise) return _uidPromise;
+    _uidPromise = new Promise((resolve, reject)=>{
+      const unsubscribe = onAuthStateChanged(auth, (user)=>{
+        unsubscribe();
+        if(user){ resolve(user.uid); }
+        else {
+          signInAnonymously(auth).then(cred=>resolve(cred.user.uid)).catch(reject);
+        }
+      });
+    });
+    return _uidPromise;
   };
 </script>
 </head>
@@ -2190,10 +2223,10 @@ function jumpToPriceLookup(ticker){
 
 /* =========================================================
    WEEKLY (FREE) PLAN USAGE LIMIT
-   10 free strategy drafts per 5-hour window, tracked via
-   persistent storage (not tied to the prototype login — this
-   mirrors a real usage-metering system, resetting on a fixed
-   rolling window rather than per calendar day.
+   10 free strategy drafts per 5-hour window, tracked in Firestore
+   under a stable per-visitor uid (anonymous Firebase Auth session if
+   not signed in) — resetting on a fixed rolling window rather than
+   per calendar day.
    ========================================================= */
 const WEEKLY_LIMIT = 10;
 const WEEKLY_WINDOW_MS = 5 * 60 * 60 * 1000; // 5 hours
@@ -2201,8 +2234,8 @@ const WEEKLY_WINDOW_MS = 5 * 60 * 60 * 1000; // 5 hours
 async function getUsageState(){
   let state = null;
   try{
-    const r = await window.storage.get('weekly-usage', false);
-    if(r && r.value) state = JSON.parse(r.value);
+    const uid = await window.__ensureFirebaseUid();
+    state = await window.__firebaseUsage.get(uid);
   }catch(e){ state = null; }
   const now = Date.now();
   if(!state || (now - state.windowStart) >= WEEKLY_WINDOW_MS){
@@ -2211,7 +2244,10 @@ async function getUsageState(){
   return state;
 }
 async function saveUsageState(state){
-  try{ await window.storage.set('weekly-usage', JSON.stringify(state), false); }catch(e){ /* non-fatal */ }
+  try{
+    const uid = await window.__ensureFirebaseUid();
+    await window.__firebaseUsage.set(uid, state);
+  }catch(e){ /* non-fatal */ }
 }
 
 async function refreshUsagePanel(){
@@ -2735,29 +2771,19 @@ function renderRebalanceSchedule(goal, years, alloc){
   nextReview.innerHTML = `<strong>Next suggested review:</strong> ${dateStr}. As a rule of thumb, revisit the allocation annually, or immediately after any large change in timeline, income, or goal amount.`;
 }
 
-/* ---------- Exhibit G: Saved Brief History (window.storage) ----------
-   Namespaced by the signed-in user (Firebase Google account or the
-   prototype email form) — NOT by the plan simulator alone. Two
-   different signed-in identities get two different storage keys,
-   so one person's briefs never show up for another. */
-function historyKey(){
-  if(!currentUser) return null; // no identity, nowhere safe to save
-  const id = (currentUser.email || currentUser.name).toLowerCase().trim();
-  return 'brief-history:' + id;
-}
-
+/* ---------- Exhibit G: Saved Brief History (Firebase Firestore) ----------
+   Namespaced by the signed-in user's Firebase Auth uid — Google account
+   if signed in that way, otherwise a stable anonymous session tied to
+   this browser. Two different signed-in identities get two different
+   documents, so one person's briefs never show up for another. */
 async function saveBriefToHistory(entry){
-  const key = historyKey();
-  if(!key) return; // not signed in — nothing saved (see note in loadHistory)
+  if(!currentUser) return; // not signed in — nothing saved (see note in loadHistory)
   try{
-    let existing = [];
-    try{
-      const r = await window.storage.get(key, false);
-      if(r && r.value) existing = JSON.parse(r.value);
-    }catch(e){ existing = []; }
+    const uid = await window.__ensureFirebaseUid();
+    let existing = await window.__firebaseHistory.get(uid);
     existing.unshift(entry);
     existing = existing.slice(0, 25);
-    await window.storage.set(key, JSON.stringify(existing), false);
+    await window.__firebaseHistory.set(uid, existing);
     loadHistory();
   }catch(e){ console.error('Could not save brief history', e); }
 }
@@ -2767,18 +2793,19 @@ async function loadHistory(){
   const dashGrid = document.getElementById('dashGrid');
   if(!list) return;
 
-  const key = historyKey();
-  if(!key){
+  if(!currentUser){
     list.innerHTML = '<div class="empty-state">Sign in to save and revisit your briefs — history is tied to your account, not this browser.</div>';
     if(dashGrid) dashGrid.innerHTML = '<div class="empty-state">Sign in to track goals across visits.</div>';
     window._briefHistoryCache = [];
+    renderMilestones([]);
+    populateCompareSelects([]);
     return;
   }
 
   let entries = [];
   try{
-    const r = await window.storage.get(key, false);
-    if(r && r.value) entries = JSON.parse(r.value);
+    const uid = await window.__ensureFirebaseUid();
+    entries = await window.__firebaseHistory.get(uid);
   }catch(e){ entries = []; }
 
   if(entries.length===0){
@@ -2896,11 +2923,11 @@ function reloadBrief(i){
 }
 
 async function clearHistory(){
-  const key = historyKey();
-  if(!key) return;
+  if(!currentUser) return;
   try{
-    await window.storage.delete(key, false);
-  }catch(e){ /* key may not exist yet */ }
+    const uid = await window.__ensureFirebaseUid();
+    await window.__firebaseHistory.clear(uid);
+  }catch(e){ /* doc may not exist yet */ }
   loadHistory();
 }
 
@@ -3226,22 +3253,14 @@ function briefContextSummary(){
 const ADVISOR_SYSTEM_PROMPT = `You are the AI Financial Copilot inside Kinlgali Investing, an education-only financial planning tool — you are NOT a registered investment adviser, and nothing you say is personalized investment, legal, or tax advice. Answer using general, widely-known financial planning principles, keeping answers concise (3-6 short paragraphs max) and plain-spoken. Never recommend individual company stocks — only asset classes or diversified index funds/ETFs. Always keep in mind the user's drafted brief context if provided. If a question falls outside general education (e.g. asks you to guarantee returns, predict specific prices, or give personalized tax/legal conclusions), say so plainly and suggest a licensed professional. Do not use markdown headers or bullet lists heavy with asterisks — write in plain prose paragraphs.`;
 
 async function callClaude(userText, contextNote){
-  const res = await fetch("https://api.anthropic.com/v1/messages", {
+  const res = await fetch("/.netlify/functions/ai-advisor", {
     method: "POST",
     headers: {"Content-Type": "application/json"},
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: 700,
-      system: ADVISOR_SYSTEM_PROMPT,
-      messages: [
-        {role:"user", content: `Context on my current drafted brief: ${contextNote}\n\nMy question: ${userText}`}
-      ]
-    })
+    body: JSON.stringify({ userText, contextNote })
   });
   if(!res.ok) throw new Error('AI request failed ('+res.status+')');
   const data = await res.json();
-  const text = (data.content||[]).map(b=>b.text||'').join('\n').trim();
-  return text || "I wasn't able to generate a response — try rephrasing your question.";
+  return data.text || "I wasn't able to generate a response — try rephrasing your question.";
 }
 
 function sendAdvisorSuggestion(el){
