@@ -693,6 +693,38 @@ footer{border-top:1px solid var(--hair); padding:44px 48px; }
 .milestone-badge .icon{font-size:24px; margin-bottom:6px;}
 .milestone-badge .name{font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft);}
 
+/* ---------- LEARNING REWARDS + FINANCIAL TWIN ---------- */
+.learning-shell{display:grid; grid-template-columns:minmax(260px,.8fr) minmax(320px,1.2fr); gap:22px; align-items:start;}
+.learning-panel,.quiz-panel,.twin-panel{border:1px solid var(--hair); background:#FFFFFF; padding:20px;}
+.learning-stat-grid{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:16px 0;}
+.learning-stat{border:1px solid var(--hair); background:var(--panel); padding:12px;}
+.learning-stat span{display:block; font-family:'IBM Plex Mono',monospace; font-size:10.5px; letter-spacing:.05em; text-transform:uppercase; color:var(--ink-soft); margin-bottom:6px;}
+.learning-stat b{font-family:'Fraunces',serif; font-size:22px; font-weight:600; color:var(--ink);}
+.badge-row{display:flex; flex-wrap:wrap; gap:8px; margin-top:14px;}
+.learning-badge{border:1px solid var(--hair); background:var(--panel); padding:8px 10px; font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.04em; text-transform:uppercase; color:var(--ink-soft); opacity:.45;}
+.learning-badge.earned{opacity:1; color:var(--ink); border-color:var(--brass); background:rgba(180,140,60,.08);}
+.path-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:12px; margin-top:16px;}
+.path-card{border:1px solid var(--hair); background:var(--panel); padding:15px; cursor:pointer; transition:.15s;}
+.path-card:hover{border-color:var(--brass); transform:translateY(-1px);}
+.path-card.active{border-color:var(--brass); background:rgba(180,140,60,.08);}
+.path-card .tag{font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.05em; text-transform:uppercase; color:var(--brass); margin-bottom:8px;}
+.path-card h4{font-family:'Fraunces',serif; font-size:18px; margin:0 0 8px; font-weight:600;}
+.path-card p{font-size:13px; color:var(--ink-soft); margin:0; line-height:1.5;}
+.quiz-question{font-family:'Fraunces',serif; font-size:21px; line-height:1.35; margin:0 0 16px;}
+.answer-grid{display:grid; gap:10px;}
+.answer-btn{border:1px solid var(--hair); background:#FFFFFF; padding:12px 14px; text-align:left; font-family:'Inter',sans-serif; font-size:14px; color:var(--ink); cursor:pointer;}
+.answer-btn:hover{border-color:var(--brass);}
+.answer-btn.correct{border-color:var(--verdigris); background:rgba(61,117,102,.08);}
+.answer-btn.wrong{border-color:var(--crimson); background:rgba(141,43,43,.08);}
+.quiz-feedback{margin-top:14px; font-size:14px; line-height:1.6; color:var(--ink-soft);}
+.reward-callout{border:1px solid var(--brass); background:rgba(180,140,60,.08); padding:14px; margin-top:16px; font-size:13.5px; line-height:1.55;}
+.reward-callout strong{color:var(--ink);}
+.twin-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; margin-top:16px;}
+.twin-feature{border-left:2px solid var(--verdigris); background:var(--panel); padding:14px 16px;}
+.twin-feature h4{margin:0 0 6px; font-family:'Fraunces',serif; font-size:17px; font-weight:600;}
+.twin-feature p{margin:0; font-size:13.5px; color:var(--ink-soft); line-height:1.55;}
+@media (max-width:900px){ .learning-shell{grid-template-columns:1fr;} .learning-stat-grid{grid-template-columns:repeat(2,minmax(0,1fr));} }
+
 /* ---------- COMPARISON ---------- */
 .compare-picker{display:flex; gap:14px; flex-wrap:wrap; margin:14px 0;}
 .compare-picker select{padding:10px 12px; border:1px solid var(--hair); font-family:'Inter',sans-serif; font-size:13px; background:#FFFFFF;}
@@ -951,6 +983,8 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
       <div class="tab-item" data-target="historySection">History</div>
       <div class="tab-item" data-target="dashboardSection">Dashboard</div>
       <div class="tab-item" data-target="aiAdvisorSection">AI Copilot</div>
+      <div class="tab-item" data-target="learningRewards">Learning</div>
+      <div class="tab-item" data-target="financialTwin">Financial Twin</div>
       <div class="tab-item" data-target="pricing">Pricing</div>
       <div class="tab-item" data-target="priceLookup">Price Lookup</div>
       <div class="tab-item" data-target="tutorial">Getting Started</div>
@@ -1392,6 +1426,55 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
     </div>
   </section>
 
+  <!-- ============ LEARNING REWARDS ============ -->
+  <section id="learningRewards">
+    <div class="section-head">
+      <div class="exhibit-mark mono">EXHIBIT M</div>
+      <h2>Learning Rewards</h2>
+    </div>
+    <p class="section-sub">Complete short financial education quizzes, build streaks, earn XP, unlock badges, and work toward an annual Premium reward milestone. Topics cover investing, budgeting, retirement planning, taxes, diversification, ETFs, and risk management.</p>
+    <div class="learning-shell">
+      <div class="learning-panel">
+        <div class="locked-tag">Investor Level</div>
+        <div class="learning-stat-grid">
+          <div class="learning-stat"><span>XP Earned</span><b id="learnXp">0</b></div>
+          <div class="learning-stat"><span>Level</span><b id="learnLevel">1</b></div>
+          <div class="learning-stat"><span>Current Streak</span><b id="learnStreak">0</b></div>
+          <div class="learning-stat"><span>Avg. Score</span><b id="learnAvg">0%</b></div>
+        </div>
+        <div class="reward-callout" id="premiumRewardBox"></div>
+        <div class="badge-row" id="learningBadgeRow"></div>
+      </div>
+      <div class="quiz-panel">
+        <div class="section-head" style="margin-bottom:10px;">
+          <div class="exhibit-mark mono">QUIZ DESK</div>
+          <h2 style="font-size:22px;">Interactive Learning Paths</h2>
+        </div>
+        <div class="path-grid" id="learningPathGrid"></div>
+        <div id="quizStage" style="margin-top:18px;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ DIGITAL FINANCIAL TWIN ============ -->
+  <section id="financialTwin">
+    <div class="section-head">
+      <div class="exhibit-mark mono">EXHIBIT N</div>
+      <h2>Digital Financial Twin</h2>
+    </div>
+    <p class="section-sub">Premium planning can evolve into a continuously updated model of a user's financial future, reflecting income, spending, investments, market conditions, inflation, taxes, and life events as they change.</p>
+    <div class="twin-panel">
+      <div class="twin-grid">
+        <div class="twin-feature"><h4>Real-Time Goal Drift</h4><p>Detect when users are falling behind or getting ahead of goals and generate plain-language action plans.</p></div>
+        <div class="twin-feature"><h4>Professional Portfolio Analytics</h4><p>Model factor exposure, sector concentration, international diversification, volatility, and modern portfolio theory optimization.</p></div>
+        <div class="twin-feature"><h4>Household Planning</h4><p>Support shared plans for couples and families, college savings, mortgage payoff strategy, debt reduction, and estate considerations.</p></div>
+        <div class="twin-feature"><h4>Monthly Health Scores</h4><p>Summarize savings rate, debt load, goal funding, risk alignment, and emergency coverage into a recurring financial health score.</p></div>
+        <div class="twin-feature"><h4>Connected Accounts</h4><p>Prepare for secure bank and brokerage integrations so portfolios and cash flow can update automatically across devices.</p></div>
+        <div class="twin-feature"><h4>Voice Financial Assistant</h4><p>Let users ask for dashboards, scenario changes, and monthly summaries through a voice-controlled planning assistant.</p></div>
+      </div>
+    </div>
+  </section>
+
   <!-- ============ GETTING STARTED / TUTORIAL ============ -->
   <section id="tutorial">
     <div class="section-head">
@@ -1596,6 +1679,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
         <ul>
           <li>Basic personalized investment strategy</li>
           <li>Initial portfolio recommendation and allocation model</li>
+          <li>Financial education quizzes, XP, streaks, and badges</li>
           <li>Simulated outcomes, stress tests, and export tools</li>
           <li>10 free drafts every 5 hours</li>
           <li>No ongoing Copilot, alerts, history, or portfolio monitoring</li>
@@ -1614,6 +1698,7 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
           <li>Quarterly rebalancing and buy/hold/sell insights</li>
           <li>Goal progress, net worth, and financial health reports</li>
           <li>Tax-efficiency, dividend, and passive income forecasting</li>
+          <li>Digital financial twin previews and personalized action plans</li>
           <li>Card required — billed after 7 days</li>
         </ul>
         <button class="btn btn-block" onclick="handlePlanSelect('monthly')">Start 7-Day Trial</button>
@@ -1629,7 +1714,8 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
           <li>Annual savings versus monthly billing</li>
           <li>Portfolio stress testing and Monte Carlo scenario planning</li>
           <li>Major life-event planning for home, college, and retirement</li>
-          <li>Investing challenges, courses, badges, and leaderboards</li>
+          <li>Advanced courses, badges, annual Premium reward eligibility, and leaderboards</li>
+          <li>Factor, sector, international exposure, and optimization analytics</li>
           <li>Early access to new premium tools</li>
           <li>Card required — billed after 1 month</li>
         </ul>
@@ -1664,7 +1750,9 @@ table.compare-table th, table.compare-table td{padding:10px 14px; border-bottom:
 // ---------- Modal gating ----------
 const ackBox = document.getElementById('ackBox');
 const enterBtn = document.getElementById('enterBtn');
-ackBox.addEventListener('change', () => { enterBtn.disabled = !ackBox.checked; });
+function syncEnterButton(){ enterBtn.disabled = !ackBox.checked; }
+ackBox.addEventListener('change', syncEnterButton);
+syncEnterButton();
 enterBtn.addEventListener('click', () => {
   document.getElementById('modalVeil').style.display = 'none';
   document.getElementById('app').classList.add('visible');
@@ -2644,6 +2732,7 @@ function setPlan(plan){
   applyGating();
   loadHistory();
   refreshUsagePanel();
+  renderLearningCenter();
 }
 
 document.getElementById('planSwitch').addEventListener('click', (e)=>{
@@ -2863,6 +2952,208 @@ function renderMilestones(entries){
     const earned = m.test(entries);
     return `<div class="milestone-badge ${earned?'earned':''}"><div class="icon">${m.icon}</div><div class="name">${m.name}</div></div>`;
   }).join('');
+}
+
+/* ---------- Learning Rewards ---------- */
+const LEARNING_STORAGE_KEY = 'kinlgali_learning_progress_v1';
+const LEARNING_PATHS = [
+  {
+    id:'investing',
+    topic:'Investing',
+    xp:120,
+    questions:[
+      {q:'What is the main advantage of investing through a diversified fund?', a:['It spreads exposure across many holdings','It guarantees a positive return','It removes all market risk'], correct:0, note:'Diversification spreads company-specific risk, but it does not eliminate market risk.'},
+      {q:'Why does time horizon matter when choosing an allocation?', a:['Longer horizons can usually tolerate more short-term volatility','It tells you which single stock will win','It makes inflation irrelevant'], correct:0, note:'A longer horizon gives a portfolio more time to recover from normal market declines.'},
+      {q:'What is rebalancing meant to do?', a:['Bring a portfolio back toward its target mix','Chase whichever asset performed best yesterday','Avoid taxes in every situation'], correct:0, note:'Rebalancing is a disciplined way to manage drift, not a prediction tool.'}
+    ]
+  },
+  {
+    id:'budgeting',
+    topic:'Budgeting',
+    xp:100,
+    questions:[
+      {q:'What should an emergency fund generally cover?', a:['Several months of essential expenses','Only entertainment spending','Only investment contributions'], correct:0, note:'Emergency savings protect the plan when income or expenses change unexpectedly.'},
+      {q:'Which habit best supports long-term investing?', a:['Automating contributions after essentials are covered','Waiting for perfect market timing','Using every dollar of credit available'], correct:0, note:'Automation helps consistency, which is often more useful than trying to time markets.'},
+      {q:'What does a savings rate measure?', a:['The share of income set aside for future goals','The interest rate on a credit card','The annual fee of an ETF'], correct:0, note:'A healthy savings rate is one of the biggest drivers of goal progress.'}
+    ]
+  },
+  {
+    id:'retirement',
+    topic:'Retirement',
+    xp:130,
+    questions:[
+      {q:'Why are tax-advantaged retirement accounts useful?', a:['They can improve after-tax compounding','They make every investment risk-free','They remove the need for diversification'], correct:0, note:'Tax treatment can help compounding, but risk management still matters.'},
+      {q:'What is sequence-of-returns risk?', a:['The risk that early retirement losses hurt withdrawals','The risk of owning too many bonds while young','The fee charged by a brokerage account'], correct:0, note:'Early losses during withdrawals can matter more than the same average return arriving in a different order.'},
+      {q:'What can increasing contributions do?', a:['Improve the odds of reaching a goal without relying only on returns','Guarantee retirement by a specific date','Make inflation harmless'], correct:0, note:'Contribution rate is one of the levers users can directly control.'}
+    ]
+  },
+  {
+    id:'taxes',
+    topic:'Taxes',
+    xp:110,
+    questions:[
+      {q:'What is tax-loss harvesting generally intended to do?', a:['Use realized losses to offset taxable gains where rules allow','Avoid all future taxes forever','Choose the highest-fee fund'], correct:0, note:'Tax-loss harvesting is rule-sensitive and should be reviewed with a qualified tax professional.'},
+      {q:'Why can asset location matter?', a:['Different account types tax income and gains differently','It changes the market price of a fund','It guarantees higher returns'], correct:0, note:'Asset location is about placing assets thoughtfully across taxable and tax-advantaged accounts.'},
+      {q:'What is a capital gain?', a:['Profit from selling an asset for more than its cost basis','A guaranteed dividend payment','A checking account fee'], correct:0, note:'Capital gains may be taxed differently depending on holding period and account type.'}
+    ]
+  },
+  {
+    id:'risk',
+    topic:'Risk Management',
+    xp:120,
+    questions:[
+      {q:'What does volatility describe?', a:['How much an investment value moves over time','The exact chance of losing all money','A fund company brand name'], correct:0, note:'Volatility is movement around a return path, not the only form of risk.'},
+      {q:'Why hold bonds or cash in a plan?', a:['To help manage stability, liquidity, and timeline risk','To make stocks unnecessary for everyone','To guarantee purchasing power'], correct:0, note:'Defensive assets can support liquidity and reduce portfolio swings.'},
+      {q:'What is concentration risk?', a:['Depending too heavily on one company, sector, or asset type','Owning more than one fund','Saving too much for retirement'], correct:0, note:'Concentration can make outcomes depend too much on one narrow exposure.'}
+    ]
+  },
+  {
+    id:'etfs',
+    topic:'ETFs',
+    xp:100,
+    questions:[
+      {q:'What does an ETF usually provide?', a:['A basket of securities traded on an exchange','A bank account with FDIC insurance','A personalized tax filing service'], correct:0, note:'ETFs can offer diversified exposure, though their risk depends on what they hold.'},
+      {q:'Why compare expense ratios?', a:['Costs reduce investor returns over time','The highest fee always means better performance','Fees replace the need for planning'], correct:0, note:'Lower costs are not everything, but they are one controllable input.'},
+      {q:'What should a user check before choosing an ETF?', a:['Holdings, costs, index, liquidity, and fit with the plan','Only the ticker symbol length',"Only yesterday's return"], correct:0, note:'ETF selection should connect to the broader allocation and goal.'}
+    ]
+  }
+];
+const LEARNING_BADGES = [
+  {id:'firstQuiz', name:'First Quiz', test:p=>p.completed >= 1},
+  {id:'fiveQuizzes', name:'Five Quizzes', test:p=>p.completed >= 5},
+  {id:'highScore', name:'90% Scholar', test:p=>p.bestScore >= 90},
+  {id:'streak', name:'7-Day Streak', test:p=>p.streak >= 7},
+  {id:'wellRounded', name:'All Topics', test:p=>new Set(p.completedTopics || []).size >= LEARNING_PATHS.length}
+];
+
+function defaultLearningProgress(){
+  return { xp:0, completed:0, totalScore:0, bestScore:0, streak:0, lastActive:null, completedTopics:[], claimedRewardYears:[] };
+}
+function getLearningProgress(){
+  try{ return Object.assign(defaultLearningProgress(), JSON.parse(localStorage.getItem(LEARNING_STORAGE_KEY) || '{}')); }
+  catch(e){ return defaultLearningProgress(); }
+}
+function saveLearningProgress(progress){
+  localStorage.setItem(LEARNING_STORAGE_KEY, JSON.stringify(progress));
+}
+function updateLearningStreak(progress){
+  const today = new Date().toISOString().slice(0,10);
+  if(progress.lastActive === today) return progress;
+  const yesterday = new Date(Date.now() - 86400000).toISOString().slice(0,10);
+  progress.streak = progress.lastActive === yesterday ? (progress.streak || 0) + 1 : 1;
+  progress.lastActive = today;
+  return progress;
+}
+function learningLevel(xp){
+  return Math.max(1, Math.floor((xp || 0) / 300) + 1);
+}
+function rewardEligibility(progress){
+  const year = new Date().getFullYear();
+  const alreadyClaimed = (progress.claimedRewardYears || []).includes(year);
+  const eligible = progress.completed >= 12 && progress.bestScore >= 90 && progress.streak >= 7 && !alreadyClaimed;
+  return { year, alreadyClaimed, eligible };
+}
+function renderLearningCenter(){
+  const xpEl = document.getElementById('learnXp');
+  if(!xpEl) return;
+  const progress = getLearningProgress();
+  const avg = progress.completed ? Math.round(progress.totalScore / progress.completed) : 0;
+  xpEl.textContent = progress.xp || 0;
+  document.getElementById('learnLevel').textContent = learningLevel(progress.xp);
+  document.getElementById('learnStreak').textContent = progress.streak || 0;
+  document.getElementById('learnAvg').textContent = avg + '%';
+
+  const reward = rewardEligibility(progress);
+  const rewardBox = document.getElementById('premiumRewardBox');
+  if(reward.alreadyClaimed){
+    rewardBox.innerHTML = '<strong>Annual reward claimed.</strong> This account has already used the free Premium month milestone for this calendar year.';
+  } else if(reward.eligible){
+    rewardBox.innerHTML = '<strong>Premium reward unlocked.</strong> You qualify for one free Premium month this year. Claiming should be verified server-side before a billing credit is issued. <button class="btn" style="margin-top:10px;" onclick="claimLearningReward()">Mark Reward Claimed</button>';
+  } else {
+    rewardBox.innerHTML = '<strong>Premium reward path:</strong> complete 12 quizzes, score at least 90% on one quiz, and maintain a 7-day streak. Limited to one free Premium month per calendar year.';
+  }
+
+  document.getElementById('learningBadgeRow').innerHTML = LEARNING_BADGES.map(b=>{
+    const earned = b.test(progress);
+    return `<div class="learning-badge ${earned?'earned':''}">${b.name}</div>`;
+  }).join('');
+
+  const activeId = window._activeLearningPath || LEARNING_PATHS[0].id;
+  document.getElementById('learningPathGrid').innerHTML = LEARNING_PATHS.map(path=>{
+    const done = (progress.completedTopics || []).filter(id=>id===path.id).length;
+    return `<div class="path-card ${path.id===activeId?'active':''}" onclick="startLearningQuiz('${path.id}')">
+      <div class="tag">${path.xp} XP • ${done} completed</div>
+      <h4>${path.topic}</h4>
+      <p>Three quick questions designed to build practical financial confidence.</p>
+    </div>`;
+  }).join('');
+
+  const stage = document.getElementById('quizStage');
+  if(!window._activeQuiz && stage && !stage.innerHTML.trim()) startLearningQuiz(activeId, true);
+}
+function startLearningQuiz(pathId, silent){
+  const path = LEARNING_PATHS.find(p=>p.id===pathId) || LEARNING_PATHS[0];
+  window._activeLearningPath = path.id;
+  window._activeQuiz = { pathId:path.id, index:0, correct:0, answered:false };
+  renderLearningQuestion();
+  if(!silent) renderLearningCenter();
+}
+function renderLearningQuestion(){
+  const quiz = window._activeQuiz;
+  const path = LEARNING_PATHS.find(p=>p.id===quiz.pathId);
+  const item = path.questions[quiz.index];
+  const stage = document.getElementById('quizStage');
+  stage.innerHTML = `
+    <div class="quiz-question">${escapeHtml(item.q)}</div>
+    <div class="answer-grid">
+      ${item.a.map((answer,i)=>`<button class="answer-btn" onclick="selectLearningAnswer(${i})">${escapeHtml(answer)}</button>`).join('')}
+    </div>
+    <div class="quiz-feedback mono">Question ${quiz.index + 1} of ${path.questions.length}</div>`;
+}
+function selectLearningAnswer(answerIndex){
+  const quiz = window._activeQuiz;
+  if(!quiz || quiz.answered) return;
+  const path = LEARNING_PATHS.find(p=>p.id===quiz.pathId);
+  const item = path.questions[quiz.index];
+  quiz.answered = true;
+  const buttons = Array.from(document.querySelectorAll('#quizStage .answer-btn'));
+  buttons.forEach((btn,i)=>{
+    btn.disabled = true;
+    if(i === item.correct) btn.classList.add('correct');
+    if(i === answerIndex && i !== item.correct) btn.classList.add('wrong');
+  });
+  if(answerIndex === item.correct) quiz.correct += 1;
+  const isLast = quiz.index === path.questions.length - 1;
+  document.querySelector('#quizStage .quiz-feedback').innerHTML = `${escapeHtml(item.note)}<br><button class="btn btn-solid" style="margin-top:12px;" onclick="${isLast?'completeLearningQuiz()':'nextLearningQuestion()'}">${isLast?'Finish Quiz':'Next Question'}</button>`;
+}
+function nextLearningQuestion(){
+  window._activeQuiz.index += 1;
+  window._activeQuiz.answered = false;
+  renderLearningQuestion();
+}
+function completeLearningQuiz(){
+  const quiz = window._activeQuiz;
+  const path = LEARNING_PATHS.find(p=>p.id===quiz.pathId);
+  const score = Math.round((quiz.correct / path.questions.length) * 100);
+  const progress = updateLearningStreak(getLearningProgress());
+  const earnedXp = Math.round(path.xp * (score / 100));
+  progress.xp = (progress.xp || 0) + earnedXp;
+  progress.completed = (progress.completed || 0) + 1;
+  progress.totalScore = (progress.totalScore || 0) + score;
+  progress.bestScore = Math.max(progress.bestScore || 0, score);
+  progress.completedTopics = [...(progress.completedTopics || []), path.id];
+  saveLearningProgress(progress);
+  window._activeQuiz = null;
+  document.getElementById('quizStage').innerHTML = `<div class="reward-callout"><strong>${path.topic} quiz complete.</strong> Score: ${score}%. XP earned: ${earnedXp}. Your streak and reward progress have been updated.</div>`;
+  renderLearningCenter();
+}
+function claimLearningReward(){
+  const progress = getLearningProgress();
+  const reward = rewardEligibility(progress);
+  if(!reward.eligible) return;
+  progress.claimedRewardYears = [...(progress.claimedRewardYears || []), reward.year];
+  saveLearningProgress(progress);
+  renderLearningCenter();
 }
 
 /* ---------- Side-by-Side Comparison ---------- */
@@ -3231,7 +3522,7 @@ async function refreshPromoBanner(){
 refreshPromoBanner();
 
 /* =========================================================
-   AI ADVISOR — calls Claude directly from the browser.
+   AI ADVISOR — calls the Netlify Gemini proxy.
    Educational only: system prompt keeps responses grounded in
    the drafted brief and away from personalized advice, single-
    stock picks, or tax/legal determinations.
@@ -3258,8 +3549,9 @@ async function callClaude(userText, contextNote){
     headers: {"Content-Type": "application/json"},
     body: JSON.stringify({ userText, contextNote })
   });
-  if(!res.ok) throw new Error('AI request failed ('+res.status+')');
-  const data = await res.json();
+  let data = {};
+  try{ data = await res.json(); }catch(e){}
+  if(!res.ok) throw new Error(data.error || 'AI request failed ('+res.status+')');
   return data.text || "I wasn't able to generate a response — try rephrasing your question.";
 }
 
@@ -3287,7 +3579,10 @@ async function sendAdvisorMessage(){
     document.getElementById(thinkingId).innerHTML = `<div class="who">Advisor</div>${textToHtml(reply)}`;
   }catch(err){
     console.error('AI advisor error:', err);
-    document.getElementById(thinkingId).innerHTML = `<div class="who">Advisor</div><p>Something went wrong reaching the AI service — please try again in a moment.</p>`;
+    const message = err.message && err.message.includes('configured')
+      ? err.message
+      : 'Something went wrong reaching the AI service. Confirm the site is running on Netlify Functions and GEMINI_API_KEY is set, then try again.';
+    document.getElementById(thinkingId).innerHTML = `<div class="who">Advisor</div><p>${escapeHtml(message)}</p>`;
   }finally{
     btn.disabled = false;
     wrap.scrollTop = wrap.scrollHeight;

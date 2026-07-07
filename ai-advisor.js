@@ -9,23 +9,53 @@
 
 const ADVISOR_SYSTEM_PROMPT = `You are the AI Financial Copilot inside Kinlgali Investing, an education-only financial planning tool — you are NOT a registered investment adviser, and nothing you say is personalized investment, legal, or tax advice. Answer using general, widely-known financial planning principles, keeping answers concise (3-6 short paragraphs max) and plain-spoken. Never recommend individual company stocks — only asset classes or diversified index funds/ETFs. Always keep in mind the user's drafted brief context if provided. If a question falls outside general education (e.g. asks you to guarantee returns, predict specific prices, or give personalized tax/legal conclusions), say so plainly and suggest a licensed professional. Do not use markdown headers or bullet lists heavy with asterisks — write in plain prose paragraphs.`;
 
-const GEMINI_MODEL = 'gemini-2.5-flash'; // free-tier model with the highest daily quota
+const DEFAULT_GEMINI_MODELS = [
+  process.env.GEMINI_MODEL,
+  'gemini-2.0-flash',
+  'gemini-2.5-flash',
+  'gemini-1.5-flash',
+].filter(Boolean);
+
+function parseGeminiText(data) {
+  const parts = data?.candidates?.[0]?.content?.parts || [];
+  return parts.map((p) => p.text || '').join('\n').trim();
+}
+
+function geminiFailureMessage(data, status) {
+  const apiMessage = data?.error?.message;
+  const finishReason = data?.candidates?.[0]?.finishReason;
+  if (apiMessage) return apiMessage;
+  if (finishReason) return 'Gemini stopped without text. Finish reason: ' + finishReason;
+  return 'AI request failed (' + status + ')';
+}
 
 exports.handler = async function (event) {
+  const headers = { 'Content-Type': 'application/json' };
+
   if (event.httpMethod !== 'POST') {
-    return { statusCode: 405, body: 'Method Not Allowed' };
+    return { statusCode: 405, headers, body: JSON.stringify({ error: 'Method Not Allowed' }) };
+  }
+
+  if (!process.env.GEMINI_API_KEY) {
+    return {
+      statusCode: 500,
+      headers,
+      body: JSON.stringify({
+        error: 'AI service is not configured. Add GEMINI_API_KEY in Netlify environment variables.',
+      }),
+    };
   }
 
   let body;
   try {
     body = JSON.parse(event.body || '{}');
   } catch (e) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Invalid JSON' }) };
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Invalid JSON' }) };
   }
 
-  const { userText, contextNote, systemOverride } = body;
+  const { userText, contextNote } = body;
   if (!userText) {
-    return { statusCode: 400, body: JSON.stringify({ error: 'Missing userText' }) };
+    return { statusCode: 400, headers, body: JSON.stringify({ error: 'Missing userText' }) };
   }
 
   const prompt = contextNote
@@ -33,39 +63,62 @@ exports.handler = async function (event) {
     : userText;
 
   try {
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+    let lastError = null;
 
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-goog-api-key': process.env.GEMINI_API_KEY,
-      },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        systemInstruction: { parts: [{ text: systemOverride || ADVISOR_SYSTEM_PROMPT }] },
-        generationConfig: { maxOutputTokens: 700 },
-      }),
-    });
+    for (const model of DEFAULT_GEMINI_MODELS) {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${encodeURIComponent(process.env.GEMINI_API_KEY)}`;
 
-    if (!res.ok) {
-      const errText = await res.text();
-      console.error('Gemini API error:', res.status, errText);
-      return {
-        statusCode: 502,
-        body: JSON.stringify({ error: 'AI request failed (' + res.status + ')' }),
-      };
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          systemInstruction: { parts: [{ text: ADVISOR_SYSTEM_PROMPT }] },
+          generationConfig: { maxOutputTokens: 700, temperature: 0.45 },
+        }),
+      });
+
+      let data = {};
+      try {
+        data = await res.json();
+      } catch (e) {
+        data = { error: { message: await res.text().catch(() => '') } };
+      }
+
+      if (!res.ok) {
+        const message = geminiFailureMessage(data, res.status);
+        lastError = { model, status: res.status, message };
+        console.error('Gemini API error:', lastError);
+        if (res.status === 404 || res.status === 429 || res.status >= 500) continue;
+        return {
+          statusCode: 502,
+          headers,
+          body: JSON.stringify({ error: message, model }),
+        };
+      }
+
+      const text = parseGeminiText(data);
+      if (text) {
+        return {
+          statusCode: 200,
+          headers,
+          body: JSON.stringify({ text, model }),
+        };
+      }
+
+      lastError = { model, status: 200, message: geminiFailureMessage(data, 200) };
     }
 
-    const data = await res.json();
-    const text = data.candidates?.[0]?.content?.parts?.map((p) => p.text || '').join('\n').trim();
-
     return {
-      statusCode: 200,
-      body: JSON.stringify({ text: text || "I wasn't able to generate a response — try rephrasing your question." }),
+      statusCode: 502,
+      headers,
+      body: JSON.stringify({
+        error: lastError?.message || "I wasn't able to generate a response — try rephrasing your question.",
+        model: lastError?.model,
+      }),
     };
   } catch (err) {
     console.error('ai-advisor function error:', err);
-    return { statusCode: 500, body: JSON.stringify({ error: err.message }) };
+    return { statusCode: 500, headers, body: JSON.stringify({ error: err.message }) };
   }
 };
